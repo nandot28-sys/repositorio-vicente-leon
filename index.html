@@ -446,6 +446,42 @@
     </div>
   </div>
 
+  <!-- ================= MODAL: CONFIRM DELETION & GOOGLE DRIVE TRASH HELPER ================= -->
+  <div id="deleteConfirmModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 border border-slate-200">
+      <div class="w-12 h-12 rounded-xl bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4">
+        <i data-lucide="trash-2" class="w-6 h-6"></i>
+      </div>
+      <h3 class="text-base font-bold text-slate-900 text-center mb-1">¿Eliminar del Repositorio?</h3>
+      <p id="deleteDocTitlePrompt" class="text-xs text-slate-600 text-center mb-4 line-clamp-2 font-medium"></p>
+      
+      <!-- Google Drive Notice Section -->
+      <div id="driveDeleteHelperBox" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-3.5 mb-4 text-xs">
+        <div class="flex items-start gap-2">
+          <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0"></i>
+          <div>
+            <p class="font-bold text-amber-900 mb-1">Archivo alojado en Google Drive</p>
+            <p class="text-amber-800 text-[11px] leading-relaxed">
+              El registro se borrará de esta web, pero por seguridad de Google, el archivo PDF permanecerá en tu carpeta en la nube a menos que lo envíes a la papelera.
+            </p>
+            <a id="openDriveFileBtn" href="#" target="_blank" rel="noopener noreferrer" class="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-[11px] shadow-sm transition">
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Abrir y Borrar en Google Drive
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+        <button type="button" onclick="closeDeleteModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl font-medium text-xs hover:bg-slate-200 transition">
+          Cancelar
+        </button>
+        <button type="button" id="confirmDeleteBtn" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl font-semibold text-xs shadow-md shadow-red-600/30 flex items-center gap-1.5 transition">
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Confirmar Eliminación
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ================= MODAL: UPLOAD / DEPOSIT WITH GOOGLE DRIVE SUPPORT ================= -->
   <div id="uploadModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
     <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl p-6 border border-slate-200 my-8">
@@ -762,9 +798,9 @@
       name: "Administrador General ISTVL"
     };
 
-    // Helper: Convierte cualquier enlace de Google Drive en URL de previsualización para el iframe y URL de descarga
+    // Helper: Extrae el ID y normaliza enlaces de Google Drive
     function processPdfUrl(url) {
-      if (!url) return { viewUrl: '', downloadUrl: '', isDrive: false };
+      if (!url) return { viewUrl: '', downloadUrl: '', driveOriginalUrl: '', fileId: null, isDrive: false };
 
       const driveRegex = /(?:drive\.google\.com\/(?:file\/d\/|open\?id=)|docs\.google\.com\/file\/d\/)([a-zA-Z0-9_-]{20,})/;
       const match = url.match(driveRegex);
@@ -774,6 +810,8 @@
         return {
           viewUrl: `https://drive.google.com/file/d/${fileId}/preview`,
           downloadUrl: `https://drive.google.com/uc?export=download&id=${fileId}`,
+          driveOriginalUrl: `https://drive.google.com/file/d/${fileId}/view`,
+          fileId: fileId,
           isDrive: true
         };
       }
@@ -781,6 +819,8 @@
       return {
         viewUrl: url,
         downloadUrl: url,
+        driveOriginalUrl: url,
+        fileId: null,
         isDrive: false
       };
     }
@@ -913,6 +953,7 @@
     let isAdminLoggedIn = false;
     let currentDocumentForCitation = null;
     let selectedUploadedFileBlob = null;
+    let documentPendingDeleteId = null;
 
     function initData() {
       const storedAdminSession = localStorage.getItem('istvl_admin_logged');
@@ -1044,20 +1085,53 @@
       document.getElementById('importFileInput').click();
     }
 
-    function deleteDocument(docId) {
+    // Modal de confirmación y Asistente de Borrado de Google Drive
+    function promptDeleteDocument(docId) {
       if (!isAdminLoggedIn) {
         openAuthModal();
         return;
       }
+
       const doc = catalog.find(d => d.id === docId);
-      const title = doc ? `"${doc.title.substring(0, 40)}..."` : 'este documento';
-      if (confirm(`¿Confirma que desea eliminar permanentemente ${title} del repositorio?`)) {
-        catalog = catalog.filter(d => d.id !== docId);
-        saveCatalog();
-        renderCatalog();
-        updateMetrics();
-        showToast("Documento eliminado del repositorio correctamente.");
+      if (!doc) return;
+
+      documentPendingDeleteId = docId;
+      document.getElementById('deleteDocTitlePrompt').innerText = `"${doc.title}"`;
+
+      const processed = processPdfUrl(doc.pdfUrl);
+      const driveBox = document.getElementById('driveDeleteHelperBox');
+      const openDriveBtn = document.getElementById('openDriveFileBtn');
+
+      if (processed.isDrive) {
+        driveBox.classList.remove('hidden');
+        openDriveBtn.href = processed.driveOriginalUrl;
+      } else {
+        driveBox.classList.add('hidden');
       }
+
+      const confirmBtn = document.getElementById('confirmDeleteBtn');
+      confirmBtn.onclick = executeDelete;
+
+      document.getElementById('deleteConfirmModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      lucide.createIcons();
+    }
+
+    function closeDeleteModal() {
+      document.getElementById('deleteConfirmModal').classList.add('hidden');
+      document.body.style.overflow = 'auto';
+      documentPendingDeleteId = null;
+    }
+
+    function executeDelete() {
+      if (!documentPendingDeleteId) return;
+
+      catalog = catalog.filter(d => d.id !== documentPendingDeleteId);
+      saveCatalog();
+      renderCatalog();
+      updateMetrics();
+      closeDeleteModal();
+      showToast("Documento retirado del catálogo del repositorio.");
     }
 
     function togglePdfSourceMode() {
@@ -1099,7 +1173,6 @@
       document.getElementById('newKeywords').value = doc.keywords.join(', ');
       document.getElementById('newAbstract').value = doc.abstract;
 
-      // Populate Drive Input if it's already an external link
       if (doc.pdfUrl && doc.pdfUrl.startsWith('http')) {
         document.querySelector('input[name="pdfSourceType"][value="drive"]').checked = true;
         document.getElementById('googleDriveUrlInput').value = doc.pdfUrl;
@@ -1195,18 +1268,18 @@
 
         const processed = processPdfUrl(doc.pdfUrl);
         const driveBadge = processed.isDrive ? `
-          <span class="inline-flex items-center gap-1 text-[10px] text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full font-medium" title="Alojado de forma segura en Google Drive (15 GB Cloud)">
+          <span class="inline-flex items-center gap-1 text-[10px] text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full font-medium" title="Alojado en Google Drive">
             <i data-lucide="cloud" class="w-3 h-3 text-blue-500"></i> Google Drive Cloud
           </span>
         ` : '';
 
-        // Administrator Action Buttons (Edit and Delete)
+        // Administrator Action Buttons (Edit and Delete with Assistant)
         const adminControls = isAdminLoggedIn ? `
           <div class="flex items-center gap-1 border-r border-slate-200 pr-2 mr-1">
             <button onclick="editDocument('${doc.id}')" title="Editar metadatos de esta obra" class="p-1.5 rounded-lg border border-blue-200 bg-blue-50/70 hover:bg-blue-100 text-blue-700 transition">
               <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
             </button>
-            <button onclick="deleteDocument('${doc.id}')" title="Eliminar del repositorio" class="p-1.5 rounded-lg border border-red-200 bg-red-50/70 hover:bg-red-100 text-red-600 transition">
+            <button onclick="promptDeleteDocument('${doc.id}')" title="Eliminar del repositorio" class="p-1.5 rounded-lg border border-red-200 bg-red-50/70 hover:bg-red-100 text-red-600 transition">
               <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
             </button>
           </div>
@@ -1648,3 +1721,5 @@
   </script>
 </body>
 </html>
+
+    
