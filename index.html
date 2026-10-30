@@ -8,8 +8,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- EmailJS Library for Real Email Notifications -->
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <!-- Google Fonts Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -146,13 +144,13 @@
     </nav>
   </header>
 
-  <!-- ================= ADMIN CONTROL BAR (ONLY VISIBLE TO LOGGED ADMIN) ================= -->
+  <!-- ================= ADMIN CONTROL BAR ================= -->
   <div id="adminTopBar" class="hidden bg-gradient-to-r from-red-950 via-slate-900 to-red-950 text-white text-xs py-2 px-4 border-b border-red-800/50">
     <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
       <div class="flex items-center gap-2">
         <span class="flex h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
         <span class="font-bold text-red-300">Panel de Control Activo:</span>
-        <span class="text-slate-300 hidden sm:inline">Tiene privilegios para agregar, editar datos, eliminar y respaldar todo el catálogo.</span>
+        <span class="text-slate-300 hidden sm:inline">Gestión de documentos, enlaces de Google Drive y respaldos.</span>
       </div>
       <div class="flex items-center gap-2">
         <button onclick="openUploadModal()" class="px-2.5 py-1 rounded bg-red-600 hover:bg-red-500 text-white font-semibold flex items-center gap-1 shadow-sm transition">
@@ -384,7 +382,7 @@
           </div>
         </div>
         <div class="flex items-center space-x-2 flex-shrink-0">
-          <a id="viewerDownloadBtn" href="#" download class="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-medium flex items-center gap-1.5 transition">
+          <a id="viewerDownloadBtn" href="#" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-medium flex items-center gap-1.5 transition">
             <i data-lucide="download" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline">Descargar PDF</span>
           </a>
           <button onclick="closePdfViewer()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
@@ -394,7 +392,7 @@
       </div>
 
       <div class="flex-grow bg-slate-100 relative">
-        <iframe id="pdfIframe" src="" class="w-full h-full border-0"></iframe>
+        <iframe id="pdfIframe" src="" class="w-full h-full border-0" allow="autoplay"></iframe>
         <div id="iframeNotice" class="absolute bottom-2 right-2 bg-slate-900/80 text-white text-[11px] px-2.5 py-1 rounded backdrop-blur-md flex items-center gap-2 pointer-events-none">
           <i data-lucide="eye" class="w-3.5 h-3.5 text-red-400"></i>
           <span>Lector digital oficial ISTVL</span>
@@ -448,7 +446,7 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: UPLOAD / DEPOSIT ================= -->
+  <!-- ================= MODAL: UPLOAD / DEPOSIT WITH GOOGLE DRIVE SUPPORT ================= -->
   <div id="uploadModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
     <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl p-6 border border-slate-200 my-8">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
@@ -469,13 +467,46 @@
       <form id="uploadForm" onsubmit="handleUploadSubmit(event)" class="space-y-4 text-xs">
         <input type="hidden" id="editDocId" value="">
 
-        <div id="fileUploadContainer">
-          <label class="block font-semibold text-slate-700 mb-1">Archivo del Documento (PDF) <span id="fileRequiredStar">*</span></label>
-          <div class="border-2 border-dashed border-slate-300 hover:border-red-500 rounded-xl p-4 text-center cursor-pointer transition bg-slate-50 hover:bg-red-50/40" onclick="document.getElementById('docFile').click()">
-            <input type="file" id="docFile" accept="application/pdf" class="hidden" onchange="handleFileSelected(this)">
-            <i data-lucide="file-up" class="w-8 h-8 text-red-600 mx-auto mb-1"></i>
-            <p class="font-semibold text-slate-700" id="fileUploadPrompt">Seleccione o arrastre el archivo PDF</p>
-            <p class="text-[10px] text-slate-400 mt-0.5">Formato PDF estándar con texto indexable.</p>
+        <!-- File Storage Method Selector (Google Drive vs Local File) -->
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+          <label class="block font-semibold text-slate-800 mb-2">Origen del Archivo PDF:</label>
+          <div class="flex items-center gap-4 mb-3">
+            <label class="flex items-center gap-1.5 cursor-pointer text-slate-700 font-medium">
+              <input type="radio" name="pdfSourceType" value="drive" checked onchange="togglePdfSourceMode()" class="text-red-600 focus:ring-red-500">
+              <span class="flex items-center gap-1"><i data-lucide="cloud" class="w-3.5 h-3.5 text-blue-600"></i> Enlace de Google Drive (Recomendado - 15GB gratis)</span>
+            </label>
+            <label class="flex items-center gap-1.5 cursor-pointer text-slate-700 font-medium">
+              <input type="radio" name="pdfSourceType" value="local" onchange="togglePdfSourceMode()" class="text-red-600 focus:ring-red-500">
+              <span class="flex items-center gap-1"><i data-lucide="upload" class="w-3.5 h-3.5 text-slate-600"></i> Subir archivo local</span>
+            </label>
+          </div>
+
+          <!-- Mode A: Google Drive Link (Automatic Parser) -->
+          <div id="driveInputSection" class="space-y-1.5">
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <i data-lucide="link" class="w-4 h-4 text-blue-500"></i>
+              </div>
+              <input 
+                type="url" 
+                id="googleDriveUrlInput" 
+                placeholder="Pegue aquí el enlace compartido de Google Drive (ej: https://drive.google.com/file/d/...)" 
+                class="w-full pl-9 pr-3 py-2.5 bg-white border border-slate-300 rounded-lg text-slate-800 focus:ring-2 focus:ring-red-500 focus:outline-none"
+              >
+            </div>
+            <p class="text-[10px] text-slate-500 flex items-center gap-1">
+              <i data-lucide="info" class="w-3 h-3 text-red-500"></i> Recuerde que el archivo en Google Drive debe tener permiso: <strong>"Cualquier persona con el enlace puede ver"</strong>. El sistema lo convertirá a visualización y descarga directa automáticamente.
+            </p>
+          </div>
+
+          <!-- Mode B: Local File -->
+          <div id="localInputSection" class="hidden">
+            <div class="border-2 border-dashed border-slate-300 hover:border-red-500 rounded-xl p-4 text-center cursor-pointer transition bg-white hover:bg-red-50/40" onclick="document.getElementById('docFile').click()">
+              <input type="file" id="docFile" accept="application/pdf" class="hidden" onchange="handleFileSelected(this)">
+              <i data-lucide="file-up" class="w-7 h-7 text-red-600 mx-auto mb-1"></i>
+              <p class="font-semibold text-slate-700" id="fileUploadPrompt">Seleccione o arrastre el archivo PDF</p>
+              <p class="text-[10px] text-slate-400 mt-0.5">Para archivos individuales de hasta 20 MB</p>
+            </div>
           </div>
         </div>
 
@@ -607,11 +638,10 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: AUTHENTICATION WITH PROTECTED ADMIN ================= -->
+  <!-- ================= MODAL: AUTHENTICATION ================= -->
   <div id="authModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
     <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-200">
       
-      <!-- Header -->
       <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
         <div class="flex items-center gap-2">
           <div class="w-9 h-9 rounded-xl bg-red-50 text-red-600 flex items-center justify-center border border-red-100">
@@ -640,7 +670,6 @@
         </div>
       </div>
 
-      <!-- Form: Admin Login Only (Option B: No public registration) -->
       <form id="loginForm" onsubmit="handleLoginSubmit(event)" class="space-y-3.5 text-xs">
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Correo Institucional *</label>
@@ -726,12 +755,35 @@
 
   <!-- ================= JAVASCRIPT LOGIC ================= -->
   <script>
-    // OPINION B: CREDENCIALES FIJAS Y BLINDADAS DEL ADMINISTRADOR (SIN REGISTRO PÚBLICO)
+    // OPINION B: CREDENCIALES FIJAS Y BLINDADAS DEL ADMINISTRADOR
     const ADMIN_ACCOUNT = {
       email: "admin@istvicenteleon.edu.ec",
       password: "admin123",
       name: "Administrador General ISTVL"
     };
+
+    // Helper: Convierte cualquier enlace de Google Drive en URL de previsualización para el iframe y URL de descarga
+    function processPdfUrl(url) {
+      if (!url) return { viewUrl: '', downloadUrl: '', isDrive: false };
+
+      const driveRegex = /(?:drive\.google\.com\/(?:file\/d\/|open\?id=)|docs\.google\.com\/file\/d\/)([a-zA-Z0-9_-]{20,})/;
+      const match = url.match(driveRegex);
+
+      if (match && match[1]) {
+        const fileId = match[1];
+        return {
+          viewUrl: `https://drive.google.com/file/d/${fileId}/preview`,
+          downloadUrl: `https://drive.google.com/uc?export=download&id=${fileId}`,
+          isDrive: true
+        };
+      }
+
+      return {
+        viewUrl: url,
+        downloadUrl: url,
+        isDrive: false
+      };
+    }
 
     // Initial Curated Dataset matching official IST Vicente León careers & Guías Académicas
     const INITIAL_CATALOG = [
@@ -749,7 +801,8 @@
         abstract: "El presente trabajo de titulación implementa una solución tecnológica basada en microservicios y arquitectura web progresiva para la digitalización y preservación de documentos académicos en el Instituto Superior Tecnológico Vicente León.",
         views: 342,
         downloads: 189,
-        pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+        isDrive: false
       },
       {
         id: "ISTVL-2025-CON-002",
@@ -765,7 +818,8 @@
         abstract: "Compendio bibliográfico para estudiantes de tercer nivel técnico sobre la adopción de las NIIF en el sector manufacturero y comercial de la provincia de Cotopaxi. Incluye modelos de balances financieros y normativas del SRI.",
         views: 890,
         downloads: 412,
-        pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+        isDrive: false
       },
       {
         id: "ISTVL-2025-GAS-003",
@@ -781,7 +835,8 @@
         abstract: "Investigación aplicada orientada a la estandarización técnica de porcionamiento, tiempos de cocción y valores nutricionales de la Chugchucara latacungueña, garantizando la inocuidad alimentaria y el rescate cultural.",
         views: 520,
         downloads: 275,
-        pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+        isDrive: false
       },
       {
         id: "ISTVL-2025-DIS-004",
@@ -797,7 +852,8 @@
         abstract: "Guía académica instruccional para talleres de diseño vectorial y composición visual. Detalla los procesos de construcción de manuales de marca e identidad gráfica para instituciones y PYMES locales.",
         views: 450,
         downloads: 210,
-        pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+        isDrive: false
       },
       {
         id: "ISTVL-2024-ADM-005",
@@ -813,7 +869,8 @@
         abstract: "Propuesta metodológica para la evaluación del riesgo de morosidad en microcréditos rurales del segmento 4 y 5 de la SEPS en Cotopaxi. Se construyó una matriz de scoring crediticio adaptada a pequeños productores.",
         views: 410,
         downloads: 198,
-        pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+        isDrive: false
       },
       {
         id: "ISTVL-2024-SEG-006",
@@ -829,7 +886,8 @@
         abstract: "Manual práctico y pedagógico de normativas de seguridad, métodos de inspección RULA/REBA y planes de contingencia para brigadas de emergencia en el contexto productivo de Cotopaxi.",
         views: 610,
         downloads: 289,
-        pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+        isDrive: false
       },
       {
         id: "ISTVL-2024-BOM-007",
@@ -845,7 +903,8 @@
         abstract: "Estandarización de procedimientos operativos y medidas de bioseguridad en incidentes de tránsito en la carretera Panamericana E35 tramo Lasso-Latacunga.",
         views: 470,
         downloads: 230,
-        pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+        isDrive: false
       }
     ];
 
@@ -855,13 +914,11 @@
     let currentDocumentForCitation = null;
     let selectedUploadedFileBlob = null;
 
-    // Load initial data
     function initData() {
-      // Check admin active session
       const storedAdminSession = localStorage.getItem('istvl_admin_logged');
       isAdminLoggedIn = storedAdminSession === 'true';
 
-      const stored = localStorage.getItem('istvl_repository_data_v2');
+      const stored = localStorage.getItem('istvl_repository_data_v3');
       if (stored) {
         try {
           catalog = JSON.parse(stored);
@@ -881,7 +938,7 @@
 
     function saveCatalog() {
       try {
-        localStorage.setItem('istvl_repository_data_v2', JSON.stringify(catalog));
+        localStorage.setItem('istvl_repository_data_v3', JSON.stringify(catalog));
       } catch (e) {
         console.warn("Storage quota warning", e);
       }
@@ -911,7 +968,6 @@
       }, 3500);
     }
 
-    // AUTHENTICATION UI FOR ADMIN ONLY
     function updateAuthUI() {
       const guestSec = document.getElementById('authGuestSection');
       const userSec = document.getElementById('authUserSection');
@@ -988,7 +1044,6 @@
       document.getElementById('importFileInput').click();
     }
 
-    // DELETE DOCUMENT (ADMIN ONLY)
     function deleteDocument(docId) {
       if (!isAdminLoggedIn) {
         openAuthModal();
@@ -1005,7 +1060,21 @@
       }
     }
 
-    // EDIT DOCUMENT (ADMIN ONLY)
+    function togglePdfSourceMode() {
+      const mode = document.querySelector('input[name="pdfSourceType"]:checked').value;
+      const driveSection = document.getElementById('driveInputSection');
+      const localSection = document.getElementById('localInputSection');
+
+      if (mode === 'drive') {
+        driveSection.classList.remove('hidden');
+        localSection.classList.add('hidden');
+      } else {
+        driveSection.classList.add('hidden');
+        localSection.classList.remove('hidden');
+      }
+      lucide.createIcons();
+    }
+
     function editDocument(docId) {
       if (!isAdminLoggedIn) {
         openAuthModal();
@@ -1030,16 +1099,20 @@
       document.getElementById('newKeywords').value = doc.keywords.join(', ');
       document.getElementById('newAbstract').value = doc.abstract;
 
-      // Make PDF optional when editing
-      document.getElementById('fileRequiredStar').innerText = '(Opcional al editar)';
-      document.getElementById('fileUploadPrompt').innerText = "Dejar vacío para conservar el PDF actual, o subir uno nuevo";
+      // Populate Drive Input if it's already an external link
+      if (doc.pdfUrl && doc.pdfUrl.startsWith('http')) {
+        document.querySelector('input[name="pdfSourceType"][value="drive"]').checked = true;
+        document.getElementById('googleDriveUrlInput').value = doc.pdfUrl;
+      } else {
+        document.querySelector('input[name="pdfSourceType"][value="local"]').checked = true;
+      }
+      togglePdfSourceMode();
 
       document.getElementById('uploadModal').classList.remove('hidden');
       document.body.style.overflow = 'hidden';
       lucide.createIcons();
     }
 
-    // Render documents list
     function renderCatalog() {
       const query = document.getElementById('searchInput').value.trim().toLowerCase();
       const typeRadio = document.querySelector('input[name="docType"]:checked')?.value || 'ALL';
@@ -1120,6 +1193,13 @@
           `<span class="inline-block bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded font-medium hover:bg-red-50 hover:text-red-700 cursor-pointer transition" onclick="searchByKeyword('${kw}')">#${kw}</span>`
         ).join(' ');
 
+        const processed = processPdfUrl(doc.pdfUrl);
+        const driveBadge = processed.isDrive ? `
+          <span class="inline-flex items-center gap-1 text-[10px] text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full font-medium" title="Alojado de forma segura en Google Drive (15 GB Cloud)">
+            <i data-lucide="cloud" class="w-3 h-3 text-blue-500"></i> Google Drive Cloud
+          </span>
+        ` : '';
+
         // Administrator Action Buttons (Edit and Delete)
         const adminControls = isAdminLoggedIn ? `
           <div class="flex items-center gap-1 border-r border-slate-200 pr-2 mr-1">
@@ -1150,6 +1230,7 @@
                 <span class="text-xs text-slate-400">
                   • ${doc.year}
                 </span>
+                ${driveBadge}
                 ${doc.doi ? `<span class="text-[10px] font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded ml-auto">${doc.doi}</span>` : ''}
               </div>
 
@@ -1185,7 +1266,7 @@
                   <button onclick="openPdfViewer('${doc.id}')" class="px-3.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-semibold flex items-center gap-1.5 shadow-sm transition">
                     <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Leer Online
                   </button>
-                  <a href="${doc.pdfUrl}" download="${doc.title.substring(0, 30)}.pdf" onclick="incrementDownload('${doc.id}')" class="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 transition" title="Descargar archivo PDF">
+                  <a href="${processed.downloadUrl}" target="_blank" rel="noopener noreferrer" onclick="incrementDownload('${doc.id}')" class="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 transition" title="Descargar archivo PDF">
                     <i data-lucide="download" class="w-4 h-4"></i>
                   </a>
                 </div>
@@ -1198,7 +1279,6 @@
       lucide.createIcons();
     }
 
-    // Search and Filter Handlers
     function handleSearch() {
       const val = document.getElementById('searchInput').value;
       const clearBtn = document.getElementById('clearSearchBtn');
@@ -1247,7 +1327,7 @@
       window.scrollTo({ top: 380, behavior: 'smooth' });
     }
 
-    // PDF Viewer
+    // PDF Viewer supporting Google Drive Preview
     function openPdfViewer(docId) {
       const doc = catalog.find(d => d.id === docId);
       if (!doc) return;
@@ -1260,12 +1340,12 @@
       document.getElementById('viewerTitle').innerText = doc.title;
       document.getElementById('viewerSubtitle').innerText = `${doc.author} • ${doc.career} • ${doc.year}`;
       
+      const processed = processPdfUrl(doc.pdfUrl);
       const iframe = document.getElementById('pdfIframe');
-      iframe.src = doc.pdfUrl;
+      iframe.src = processed.viewUrl;
 
       const downloadBtn = document.getElementById('viewerDownloadBtn');
-      downloadBtn.href = doc.pdfUrl;
-      downloadBtn.setAttribute('download', `${doc.title.substring(0, 35)}.pdf`);
+      downloadBtn.href = processed.downloadUrl;
       downloadBtn.onclick = () => incrementDownload(doc.id);
 
       document.getElementById('pdfViewerModal').classList.remove('hidden');
@@ -1349,7 +1429,7 @@
       }, 2500);
     }
 
-    // Upload & Deposit Form (ADMINISTRATOR ONLY)
+    // Upload & Deposit Form
     function openUploadModal() {
       if (!isAdminLoggedIn) {
         openAuthModal();
@@ -1361,8 +1441,9 @@
       document.getElementById('submitDocBtn').innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i> Guardar en Repositorio';
       document.getElementById('uploadForm').reset();
       selectedUploadedFileBlob = null;
-      document.getElementById('fileRequiredStar').innerText = '*';
       document.getElementById('fileUploadPrompt').innerText = "Seleccione o arrastre el archivo PDF";
+      document.querySelector('input[name="pdfSourceType"][value="drive"]').checked = true;
+      togglePdfSourceMode();
 
       document.getElementById('uploadModal').classList.remove('hidden');
       document.body.style.overflow = 'hidden';
@@ -1403,8 +1484,25 @@
       const keywords = keywordsRaw.split(',').map(k => k.trim()).filter(k => k.length > 0);
       const abstract = document.getElementById('newAbstract').value.trim();
 
+      // Determine PDF URL from Google Drive or Local File
+      const sourceType = document.querySelector('input[name="pdfSourceType"]:checked').value;
+      let finalPdfUrl = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+
+      if (sourceType === 'drive') {
+        const rawDriveUrl = document.getElementById('googleDriveUrlInput').value.trim();
+        if (rawDriveUrl) {
+          finalPdfUrl = rawDriveUrl;
+        } else if (!editId) {
+          showToast("Por favor ingrese el enlace de Google Drive", false);
+          return;
+        }
+      } else {
+        if (selectedUploadedFileBlob) {
+          finalPdfUrl = selectedUploadedFileBlob;
+        }
+      }
+
       if (editId) {
-        // Mode: Edit existing document
         const index = catalog.findIndex(d => d.id === editId);
         if (index !== -1) {
           catalog[index].title = title;
@@ -1418,7 +1516,9 @@
           catalog[index].keywords = keywords.length ? keywords : ["Educación", "ISTVL"];
           catalog[index].abstract = abstract;
 
-          if (selectedUploadedFileBlob) {
+          if (sourceType === 'drive' && document.getElementById('googleDriveUrlInput').value.trim()) {
+            catalog[index].pdfUrl = document.getElementById('googleDriveUrlInput').value.trim();
+          } else if (selectedUploadedFileBlob) {
             catalog[index].pdfUrl = selectedUploadedFileBlob;
           }
 
@@ -1431,7 +1531,6 @@
         }
       }
 
-      // Mode: Add new document
       const newDocument = {
         id: doi,
         title,
@@ -1446,7 +1545,7 @@
         abstract,
         views: 1,
         downloads: 0,
-        pdfUrl: selectedUploadedFileBlob || "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        pdfUrl: finalPdfUrl
       };
 
       catalog.unshift(newDocument);
@@ -1457,13 +1556,11 @@
       closeUploadModal();
       document.getElementById('uploadForm').reset();
       selectedUploadedFileBlob = null;
-      document.getElementById('fileUploadPrompt').innerText = "Seleccione o arrastre el archivo PDF";
 
       showToast("¡Documento publicado exitosamente en el Repositorio!");
       window.scrollTo({ top: 380, behavior: 'smooth' });
     }
 
-    // Stats
     function updateMetrics() {
       const totalDocs = catalog.length;
       const thesesCount = catalog.filter(d => d.type === 'Tesis de Grado').length;
@@ -1507,7 +1604,6 @@
       }
     }
 
-    // Backup & Restore
     function exportDataJson() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(catalog, null, 2));
       const downloadAnchor = document.createElement('a');
