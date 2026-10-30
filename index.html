@@ -8,6 +8,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- EmailJS Library for Real Email Notifications -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <!-- Google Fonts Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -41,7 +43,6 @@
   </script>
 
   <style>
-    /* Custom scrollbar for modern sleek aesthetic */
     ::-webkit-scrollbar {
       width: 8px;
       height: 8px;
@@ -62,15 +63,9 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
-    .line-clamp-3 {
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased font-sans flex flex-col min-h-screen selection:bg-sky-200">
+<body class="bg-slate-50 text-slate-800 antialiased font-sans flex flex-col min-h-screen selection:bg-red-200">
 
   <!-- ================= TOP INSTITUTIONAL BAR ================= -->
   <header class="bg-istvl-navy text-white text-xs border-b border-slate-700/60 sticky top-0 z-40">
@@ -86,9 +81,9 @@
           <i data-lucide="globe" class="w-3.5 h-3.5"></i> Portal Institucional
         </a>
         <span class="text-slate-600">|</span>
-        <button onclick="openVercelGuideModal()" class="hover:text-red-400 transition-colors flex items-center gap-1 text-red-300 font-medium">
-          <i data-lucide="cloud-upload" class="w-3.5 h-3.5"></i> ¿Cómo alojar gratis en Vercel?
-        </button>
+        <span class="text-slate-400 text-[11px] flex items-center gap-1">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5 text-red-400"></i> Sistema de Acceso Abierto
+        </span>
       </div>
     </div>
 
@@ -113,23 +108,65 @@
           </div>
         </div>
 
-        <!-- Action Buttons -->
+        <!-- Action Buttons & User Profile Area -->
         <div class="flex items-center space-x-2 sm:space-x-3">
           <button onclick="toggleStatsModal()" class="hidden md:inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 transition">
             <i data-lucide="bar-chart-2" class="w-4 h-4 mr-1.5 text-red-400"></i> Métricas
           </button>
-          
-          <button onclick="openUploadModal()" class="inline-flex items-center px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 shadow-md shadow-red-600/30 transition-all transform active:scale-95">
-            <i data-lucide="upload-cloud" class="w-4 h-4 mr-1.5"></i> Depositar Documento
-          </button>
+
+          <!-- Guest State: Free Public Access + Admin Login Button -->
+          <div id="authGuestSection" class="flex items-center space-x-2">
+            <button onclick="openAuthModal()" class="inline-flex items-center px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-200 bg-slate-800 hover:bg-slate-700 border border-slate-700 shadow-sm transition">
+              <i data-lucide="lock" class="w-3.5 h-3.5 mr-1.5 text-red-400"></i> Acceso Administrador
+            </button>
+          </div>
+
+          <!-- Authenticated Administrator State -->
+          <div id="authUserSection" class="hidden flex items-center space-x-2 sm:space-x-3">
+            <button onclick="openUploadModal()" class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 shadow-md shadow-red-600/30 transition-all transform active:scale-95">
+              <i data-lucide="plus-circle" class="w-4 h-4 mr-1.5"></i> Agregar Documento
+            </button>
+
+            <!-- Admin Badge -->
+            <div class="flex items-center bg-slate-800/90 border border-slate-700 rounded-xl px-2.5 py-1 gap-2">
+              <div class="w-7 h-7 rounded-lg bg-red-600/20 text-red-400 border border-red-500/30 flex items-center justify-center font-bold text-xs">
+                <i data-lucide="shield-check" class="w-4 h-4"></i>
+              </div>
+              <div class="text-left hidden sm:block">
+                <p class="text-[11px] font-bold text-white">Administrador</p>
+                <span class="text-[9px] px-1.5 py-0.2 rounded font-semibold uppercase tracking-wider bg-red-600/30 text-red-300 border border-red-500/40 inline-block">Modo Edición</span>
+              </div>
+              <button onclick="handleLogout()" title="Cerrar Sesión de Administrador" class="text-slate-400 hover:text-red-400 p-1 transition ml-1">
+                <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </nav>
   </header>
 
+  <!-- ================= ADMIN CONTROL BAR (ONLY VISIBLE TO LOGGED ADMIN) ================= -->
+  <div id="adminTopBar" class="hidden bg-gradient-to-r from-red-950 via-slate-900 to-red-950 text-white text-xs py-2 px-4 border-b border-red-800/50">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <span class="flex h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
+        <span class="font-bold text-red-300">Panel de Control Activo:</span>
+        <span class="text-slate-300 hidden sm:inline">Tiene privilegios para agregar, editar datos, eliminar y respaldar todo el catálogo.</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="openUploadModal()" class="px-2.5 py-1 rounded bg-red-600 hover:bg-red-500 text-white font-semibold flex items-center gap-1 shadow-sm transition">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i> Nuevo Documento
+        </button>
+        <button onclick="exportDataJson()" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1 font-medium transition">
+          <i data-lucide="download" class="w-3.5 h-3.5 text-red-400"></i> Respaldar BD
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ================= HERO SECTION & SEARCH ================= -->
   <section class="bg-gradient-to-b from-slate-900 via-istvl-navy to-slate-900 text-white pt-10 pb-16 px-4 sm:px-6 lg:px-8 border-b border-slate-800 relative overflow-hidden">
-    <!-- Background subtle glow -->
     <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#ef4444_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none"></div>
     <div class="absolute -top-24 -left-24 w-96 h-96 bg-red-600/10 rounded-full blur-3xl pointer-events-none"></div>
     <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-red-500/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -177,7 +214,7 @@
         </div>
       </div>
 
-      <!-- Quick career pills updated with official website careers -->
+      <!-- Quick career pills -->
       <div class="mt-5 flex flex-wrap items-center justify-center gap-2 text-xs text-slate-300">
         <span class="text-slate-400 font-medium mr-1">Carreras oficiales:</span>
         <button onclick="setQuickCareer('Desarrollo de Software')" class="px-2.5 py-1 rounded-full bg-slate-800/80 hover:bg-red-600/30 hover:border-red-400 border border-slate-700 transition">💻 Software</button>
@@ -235,7 +272,7 @@
             </div>
           </div>
 
-          <!-- Career Filter updated with 10 official careers from website -->
+          <!-- Career Filter -->
           <div class="mt-6 pt-4 border-t border-slate-100">
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Carrera Institucional</label>
             <select id="careerSelect" onchange="handleFiltersChange()" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-red-500">
@@ -279,7 +316,7 @@
           </div>
         </div>
 
-        <!-- Institutional Info Badge in Red -->
+        <!-- Institutional Info Badge -->
         <div class="bg-gradient-to-br from-slate-900 to-istvl-navy rounded-2xl p-4 text-white text-xs border border-slate-700/60 shadow-sm">
           <div class="flex items-center gap-2 mb-2 text-red-400 font-semibold">
             <i data-lucide="shield-check" class="w-4 h-4"></i>
@@ -299,23 +336,21 @@
             <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
               <span id="resultsCount">0</span> publicaciones encontradas
             </h2>
-            <p id="activeFilterSummary" class="text-xs text-slate-500">Mostrando catálogo completo</p>
+            <p id="activeFilterSummary" class="text-xs text-slate-500">Mostrando catálogo libre y abierto</p>
           </div>
           <div class="flex items-center gap-2 text-xs">
             <button onclick="exportDataJson()" title="Descargar respaldo del catálogo en JSON" class="px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 flex items-center gap-1 font-medium shadow-sm transition">
-              <i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar BD
+              <i data-lucide="download" class="w-3.5 h-3.5 text-red-600"></i> Respaldar Catálogo
             </button>
-            <button onclick="document.getElementById('importFileInput').click()" title="Cargar catálogo JSON" class="px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 flex items-center gap-1 font-medium shadow-sm transition">
-              <i data-lucide="upload" class="w-3.5 h-3.5"></i> Importar BD
+            <button id="importAdminBtn" onclick="triggerImport()" title="Cargar catálogo JSON (Administrador)" class="hidden px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 items-center gap-1 font-medium shadow-sm transition">
+              <i data-lucide="upload" class="w-3.5 h-3.5 text-red-600"></i> Restaurar BD
             </button>
             <input type="file" id="importFileInput" accept=".json" class="hidden" onchange="importDataJson(event)">
           </div>
         </div>
 
         <!-- Cards Container -->
-        <div id="documentsGrid" class="space-y-4">
-          <!-- Dynamically populated -->
-        </div>
+        <div id="documentsGrid" class="space-y-4"></div>
 
         <!-- Empty State -->
         <div id="noResultsState" class="hidden py-16 text-center bg-white rounded-2xl border border-slate-200 p-8">
@@ -338,7 +373,6 @@
   <!-- ================= MODAL: PDF VIEWER ================= -->
   <div id="pdfViewerModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-2 sm:p-4">
     <div class="bg-white w-full max-w-5xl h-[92vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-300">
-      <!-- Viewer Header -->
       <div class="bg-slate-900 text-white px-4 py-3 flex items-center justify-between border-b border-slate-800">
         <div class="flex items-center space-x-3 overflow-hidden">
           <span class="p-1.5 rounded-lg bg-red-500/20 text-red-400">
@@ -359,10 +393,8 @@
         </div>
       </div>
 
-      <!-- Viewer Body / Iframe -->
       <div class="flex-grow bg-slate-100 relative">
         <iframe id="pdfIframe" src="" class="w-full h-full border-0"></iframe>
-        
         <div id="iframeNotice" class="absolute bottom-2 right-2 bg-slate-900/80 text-white text-[11px] px-2.5 py-1 rounded backdrop-blur-md flex items-center gap-2 pointer-events-none">
           <i data-lucide="eye" class="w-3.5 h-3.5 text-red-400"></i>
           <span>Lector digital oficial ISTVL</span>
@@ -371,7 +403,7 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: ACADEMIC CITATION ================= -->
+  <!-- ================= MODAL: CITATION ================= -->
   <div id="citationModal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-xl rounded-2xl shadow-2xl p-6 border border-slate-200">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
@@ -389,7 +421,6 @@
         </button>
       </div>
 
-      <!-- Citation Formats Tabs -->
       <div class="flex border-b border-slate-200 gap-2 mb-4 text-xs font-semibold">
         <button onclick="switchCiteTab('apa')" id="tab-apa" class="py-2 px-3 border-b-2 border-red-600 text-red-600">APA (7ma ed.)</button>
         <button onclick="switchCiteTab('ieee')" id="tab-ieee" class="py-2 px-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700">IEEE</button>
@@ -397,7 +428,6 @@
         <button onclick="switchCiteTab('bibtex')" id="tab-bibtex" class="py-2 px-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700">BibTeX</button>
       </div>
 
-      <!-- Text Container -->
       <div class="relative bg-slate-50 p-4 rounded-xl border border-slate-200 font-mono text-xs text-slate-800 leading-relaxed" id="citationBox">
         Generando cita...
       </div>
@@ -424,11 +454,11 @@
       <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
         <div class="flex items-center gap-2">
           <div class="w-9 h-9 rounded-xl bg-red-50 text-red-600 flex items-center justify-center border border-red-200">
-            <i data-lucide="upload-cloud" class="w-5 h-5"></i>
+            <i data-lucide="file-cog" class="w-5 h-5"></i>
           </div>
           <div>
-            <h3 class="font-bold text-slate-900 text-base">Depositar Documento en el Repositorio</h3>
-            <p class="text-[11px] text-slate-500">Módulo de auto-archivo académico para el IST Vicente León</p>
+            <h3 class="font-bold text-slate-900 text-base" id="uploadModalTitle">Gestión de Documento</h3>
+            <p class="text-[11px] text-slate-500">Panel Exclusivo de Administración IST Vicente León</p>
           </div>
         </div>
         <button onclick="closeUploadModal()" class="text-slate-400 hover:text-slate-600">
@@ -437,11 +467,12 @@
       </div>
 
       <form id="uploadForm" onsubmit="handleUploadSubmit(event)" class="space-y-4 text-xs">
-        <!-- PDF File Picker -->
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1">Archivo del Documento (PDF) *</label>
+        <input type="hidden" id="editDocId" value="">
+
+        <div id="fileUploadContainer">
+          <label class="block font-semibold text-slate-700 mb-1">Archivo del Documento (PDF) <span id="fileRequiredStar">*</span></label>
           <div class="border-2 border-dashed border-slate-300 hover:border-red-500 rounded-xl p-4 text-center cursor-pointer transition bg-slate-50 hover:bg-red-50/40" onclick="document.getElementById('docFile').click()">
-            <input type="file" id="docFile" accept="application/pdf" class="hidden" required onchange="handleFileSelected(this)">
+            <input type="file" id="docFile" accept="application/pdf" class="hidden" onchange="handleFileSelected(this)">
             <i data-lucide="file-up" class="w-8 h-8 text-red-600 mx-auto mb-1"></i>
             <p class="font-semibold text-slate-700" id="fileUploadPrompt">Seleccione o arrastre el archivo PDF</p>
             <p class="text-[10px] text-slate-400 mt-0.5">Formato PDF estándar con texto indexable.</p>
@@ -482,7 +513,7 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block font-semibold text-slate-700 mb-1">Autor(es) / Docente *</label>
+            <label class="block font-semibold text-slate-700 mb-1">Autor(es) *</label>
             <input type="text" id="newAuthor" required placeholder="Apellidos, Nombres (Ej: Viteri, Marco)" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-slate-800 focus:ring-2 focus:ring-red-500 focus:outline-none">
           </div>
           <div>
@@ -520,7 +551,7 @@
           <button type="button" onclick="closeUploadModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl font-medium hover:bg-slate-200 transition">
             Cancelar
           </button>
-          <button type="submit" class="px-5 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl font-semibold shadow-md shadow-red-600/30 flex items-center gap-1.5 transition">
+          <button type="submit" id="submitDocBtn" class="px-5 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl font-semibold shadow-md shadow-red-600/30 flex items-center gap-1.5 transition">
             <i data-lucide="check-circle" class="w-4 h-4"></i> Guardar en Repositorio
           </button>
         </div>
@@ -546,7 +577,6 @@
         </button>
       </div>
 
-      <!-- Quick Metrics Counters -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center">
           <span class="text-xs text-slate-500 block">Total Obras</span>
@@ -566,11 +596,8 @@
         </div>
       </div>
 
-      <!-- Carrera Distribution Bars -->
       <h4 class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-3">Distribución por Carrera Institucional</h4>
-      <div class="space-y-2.5 text-xs max-h-60 overflow-y-auto pr-1" id="statsCareerBars">
-        <!-- Injected via JavaScript -->
-      </div>
+      <div class="space-y-2.5 text-xs max-h-60 overflow-y-auto pr-1" id="statsCareerBars"></div>
 
       <div class="mt-6 pt-4 border-t border-slate-100 flex justify-end">
         <button onclick="toggleStatsModal()" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-semibold hover:bg-slate-800 transition">
@@ -580,61 +607,63 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: VERCEL DEPLOY GUIDE ================= -->
-  <div id="vercelModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl p-6 border border-slate-200 max-h-[90vh] overflow-y-auto">
+  <!-- ================= MODAL: AUTHENTICATION WITH PROTECTED ADMIN ================= -->
+  <div id="authModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-200">
+      
+      <!-- Header -->
       <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
         <div class="flex items-center gap-2">
-          <div class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center">
-            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M24 22.525H0l12-21.05 12 21.05z"/></svg>
+          <div class="w-9 h-9 rounded-xl bg-red-50 text-red-600 flex items-center justify-center border border-red-100">
+            <i data-lucide="shield-check" class="w-5 h-5"></i>
           </div>
           <div>
-            <h3 class="font-bold text-slate-900 text-base">Publicación Gratuita en Vercel</h3>
-            <p class="text-[11px] text-slate-500">Pasos para desplegar el repositorio del IST Vicente León</p>
+            <h3 class="font-bold text-slate-900 text-base">Acceso Administrador</h3>
+            <p class="text-[11px] text-slate-500">Gestión de Contenidos ISTVL</p>
           </div>
         </div>
-        <button onclick="closeVercelGuideModal()" class="text-slate-400 hover:text-slate-600">
+        <button onclick="closeAuthModal()" class="text-slate-400 hover:text-slate-600">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <div class="space-y-3.5 text-xs text-slate-600 leading-relaxed">
-        <div class="p-3 bg-red-50 rounded-xl border border-red-100 text-red-900 flex items-start gap-2">
-          <i data-lucide="info" class="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5"></i>
-          <span>Este repositorio es completamente estático y modular, compatible con el tier Hobby 100% gratuito de Vercel y GitHub Pages.</span>
-        </div>
-
-        <div class="flex gap-3 items-start">
-          <div class="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center font-bold text-[11px] flex-shrink-0">1</div>
-          <div>
-            <strong class="text-slate-800">Crea un repositorio en GitHub:</strong>
-            <p>Guarda este archivo como <code>index.html</code> y súbelo a un repositorio público o privado en tu cuenta de <a href="https://github.com" target="_blank" class="text-red-600 underline">GitHub.com</a>.</p>
-          </div>
-        </div>
-
-        <div class="flex gap-3 items-start">
-          <div class="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center font-bold text-[11px] flex-shrink-0">2</div>
-          <div>
-            <strong class="text-slate-800">Inicia sesión en Vercel:</strong>
-            <p>Accede a <a href="https://vercel.com" target="_blank" class="text-red-600 underline">Vercel.com</a> con tu usuario de GitHub.</p>
-          </div>
-        </div>
-
-        <div class="flex gap-3 items-start">
-          <div class="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center font-bold text-[11px] flex-shrink-0">3</div>
-          <div>
-            <strong class="text-slate-800">Despliegue automático:</strong>
-            <p>Selecciona tu repositorio y haz clic en <strong>Deploy</strong>. Obtendrás un enlace con HTTPS automático como <code>repositorio-ist-vicenteleon.vercel.app</code>.</p>
-          </div>
+      <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 mb-4 text-[11px] text-slate-600 leading-relaxed">
+        <p class="font-bold text-slate-800 flex items-center gap-1 mb-1">
+          <i data-lucide="info" class="w-3.5 h-3.5 text-red-600"></i> Acceso Restringido:
+        </p>
+        <p>Los estudiantes y docentes tienen acceso libre a todo el catálogo. Esta sección es exclusiva para el personal administrativo.</p>
+        <div class="mt-2 pt-2 border-t border-slate-200 flex justify-between items-center">
+          <span class="text-slate-500 text-[10px]">Credencial oficial:</span>
+          <button type="button" onclick="fillAdminCredentials()" class="text-red-600 hover:text-red-700 font-semibold underline text-[11px]">
+            Autocompletar clave
+          </button>
         </div>
       </div>
 
-      <div class="mt-6 pt-4 border-t border-slate-100 flex justify-end">
-        <button onclick="closeVercelGuideModal()" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-semibold hover:bg-slate-800 transition">
-          Cerrar Guía
+      <!-- Form: Admin Login Only (Option B: No public registration) -->
+      <form id="loginForm" onsubmit="handleLoginSubmit(event)" class="space-y-3.5 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Correo Institucional *</label>
+          <input type="email" id="loginEmail" required placeholder="admin@istvicenteleon.edu.ec" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 focus:ring-2 focus:ring-red-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Contraseña de Administrador *</label>
+          <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 focus:ring-2 focus:ring-red-500 focus:outline-none">
+        </div>
+        <div id="loginErrorMsg" class="hidden text-xs text-red-600 font-medium bg-red-50 p-2 rounded-lg border border-red-200"></div>
+        <button type="submit" class="w-full py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-xl font-semibold shadow-md shadow-red-600/30 transition flex items-center justify-center gap-2">
+          <i data-lucide="key" class="w-4 h-4"></i> Ingresar al Panel de Gestión
         </button>
-      </div>
+      </form>
     </div>
+  </div>
+
+  <!-- ================= NOTIFICATION TOAST ================= -->
+  <div id="toastNotification" class="fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700 hidden items-center gap-3 transition-all duration-300 text-xs">
+    <div id="toastIcon" class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0">
+      <i data-lucide="check" class="w-4 h-4"></i>
+    </div>
+    <div id="toastText" class="font-medium text-slate-200">Notificación</div>
   </div>
 
   <!-- ================= FOOTER ================= -->
@@ -680,8 +709,7 @@
           <h4 class="text-white font-semibold text-xs uppercase tracking-wider mb-3">Directorio Académico</h4>
           <ul class="space-y-1.5 text-slate-400 text-xs">
             <li><a href="https://istvicenteleon.edu.ec" target="_blank" rel="noopener noreferrer" class="hover:text-white transition">Sitio Web Oficial</a></li>
-            <li><a href="#" onclick="openUploadModal(); return false;" class="hover:text-white transition">Auto-archivo Digital</a></li>
-            <li><a href="#" onclick="openVercelGuideModal(); return false;" class="hover:text-white transition">Despliegue en Vercel</a></li>
+            <li><a href="#" onclick="openAuthModal(); return false;" class="hover:text-white transition">Ingreso Personal Bibliotecario</a></li>
             <li><a href="https://creativecommons.org/licenses/by-nc/4.0/deed.es" target="_blank" rel="noopener noreferrer" class="hover:text-white transition">Licencia Creative Commons</a></li>
           </ul>
         </div>
@@ -690,7 +718,7 @@
       <div class="border-t border-slate-900 pt-6 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-400 gap-2">
         <p>© 2026 Instituto Superior Tecnológico Vicente León. Todos los derechos reservados.</p>
         <p class="flex items-center gap-1">
-          Desarrollado para despliegue serverless gratuito en <span class="text-white font-medium">Vercel</span>
+          Plataforma de preservación y difusión científica de Cotopaxi
         </p>
       </div>
     </div>
@@ -698,6 +726,13 @@
 
   <!-- ================= JAVASCRIPT LOGIC ================= -->
   <script>
+    // OPINION B: CREDENCIALES FIJAS Y BLINDADAS DEL ADMINISTRADOR (SIN REGISTRO PÚBLICO)
+    const ADMIN_ACCOUNT = {
+      email: "admin@istvicenteleon.edu.ec",
+      password: "admin123",
+      name: "Administrador General ISTVL"
+    };
+
     // Initial Curated Dataset matching official IST Vicente León careers & Guías Académicas
     const INITIAL_CATALOG = [
       {
@@ -816,11 +851,16 @@
 
     // State
     let catalog = [];
+    let isAdminLoggedIn = false;
     let currentDocumentForCitation = null;
     let selectedUploadedFileBlob = null;
 
     // Load initial data
     function initData() {
+      // Check admin active session
+      const storedAdminSession = localStorage.getItem('istvl_admin_logged');
+      isAdminLoggedIn = storedAdminSession === 'true';
+
       const stored = localStorage.getItem('istvl_repository_data_v2');
       if (stored) {
         try {
@@ -832,6 +872,8 @@
         catalog = [...INITIAL_CATALOG];
         saveCatalog();
       }
+
+      updateAuthUI();
       renderCatalog();
       updateMetrics();
       lucide.createIcons();
@@ -845,6 +887,158 @@
       }
     }
 
+    function showToast(message, isSuccess = true) {
+      const toast = document.getElementById('toastNotification');
+      const text = document.getElementById('toastText');
+      const icon = document.getElementById('toastIcon');
+
+      text.innerText = message;
+      if (isSuccess) {
+        icon.className = "w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0";
+        icon.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i>';
+      } else {
+        icon.className = "w-6 h-6 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center flex-shrink-0";
+        icon.innerHTML = '<i data-lucide="alert-triangle" class="w-4 h-4"></i>';
+      }
+
+      toast.classList.remove('hidden');
+      toast.classList.add('flex');
+      lucide.createIcons();
+
+      setTimeout(() => {
+        toast.classList.add('hidden');
+        toast.classList.remove('flex');
+      }, 3500);
+    }
+
+    // AUTHENTICATION UI FOR ADMIN ONLY
+    function updateAuthUI() {
+      const guestSec = document.getElementById('authGuestSection');
+      const userSec = document.getElementById('authUserSection');
+      const adminTopBar = document.getElementById('adminTopBar');
+      const importAdminBtn = document.getElementById('importAdminBtn');
+
+      if (isAdminLoggedIn) {
+        guestSec.classList.add('hidden');
+        userSec.classList.remove('hidden');
+        adminTopBar.classList.remove('hidden');
+        importAdminBtn.classList.remove('hidden');
+        importAdminBtn.classList.add('flex');
+      } else {
+        guestSec.classList.remove('hidden');
+        userSec.classList.add('hidden');
+        adminTopBar.classList.add('hidden');
+        importAdminBtn.classList.add('hidden');
+        importAdminBtn.classList.remove('flex');
+      }
+      lucide.createIcons();
+    }
+
+    function openAuthModal() {
+      document.getElementById('authModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('loginErrorMsg').classList.add('hidden');
+      lucide.createIcons();
+    }
+
+    function closeAuthModal() {
+      document.getElementById('authModal').classList.add('hidden');
+      document.body.style.overflow = 'auto';
+      document.getElementById('loginErrorMsg').classList.add('hidden');
+    }
+
+    function fillAdminCredentials() {
+      document.getElementById('loginEmail').value = ADMIN_ACCOUNT.email;
+      document.getElementById('loginPassword').value = ADMIN_ACCOUNT.password;
+    }
+
+    function handleLoginSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+      const password = document.getElementById('loginPassword').value;
+      const errorBox = document.getElementById('loginErrorMsg');
+
+      if (email === ADMIN_ACCOUNT.email.toLowerCase() && password === ADMIN_ACCOUNT.password) {
+        isAdminLoggedIn = true;
+        localStorage.setItem('istvl_admin_logged', 'true');
+        errorBox.classList.add('hidden');
+        updateAuthUI();
+        renderCatalog();
+        closeAuthModal();
+        showToast("¡Acceso correcto! Panel de administración habilitado.");
+      } else {
+        errorBox.innerText = "Credenciales de administrador no válidas. Verifique sus datos.";
+        errorBox.classList.remove('hidden');
+      }
+    }
+
+    function handleLogout() {
+      isAdminLoggedIn = false;
+      localStorage.removeItem('istvl_admin_logged');
+      updateAuthUI();
+      renderCatalog();
+      showToast("Ha salido del modo de administración.");
+    }
+
+    function triggerImport() {
+      if (!isAdminLoggedIn) {
+        openAuthModal();
+        return;
+      }
+      document.getElementById('importFileInput').click();
+    }
+
+    // DELETE DOCUMENT (ADMIN ONLY)
+    function deleteDocument(docId) {
+      if (!isAdminLoggedIn) {
+        openAuthModal();
+        return;
+      }
+      const doc = catalog.find(d => d.id === docId);
+      const title = doc ? `"${doc.title.substring(0, 40)}..."` : 'este documento';
+      if (confirm(`¿Confirma que desea eliminar permanentemente ${title} del repositorio?`)) {
+        catalog = catalog.filter(d => d.id !== docId);
+        saveCatalog();
+        renderCatalog();
+        updateMetrics();
+        showToast("Documento eliminado del repositorio correctamente.");
+      }
+    }
+
+    // EDIT DOCUMENT (ADMIN ONLY)
+    function editDocument(docId) {
+      if (!isAdminLoggedIn) {
+        openAuthModal();
+        return;
+      }
+
+      const doc = catalog.find(d => d.id === docId);
+      if (!doc) return;
+
+      document.getElementById('editDocId').value = doc.id;
+      document.getElementById('uploadModalTitle').innerText = "Editar Documento del Catálogo";
+      document.getElementById('submitDocBtn').innerHTML = '<i data-lucide="save" class="w-4 h-4"></i> Guardar Cambios';
+      
+      document.getElementById('newDocType').value = doc.type;
+      document.getElementById('newCareer').value = doc.career;
+      document.getElementById('newTitle').value = doc.title;
+      document.getElementById('newAuthor').value = doc.author;
+      document.getElementById('newAdvisor').value = doc.advisor || '';
+      document.getElementById('newYear').value = doc.year;
+      document.getElementById('newPages').value = doc.pages || '';
+      document.getElementById('newDoi').value = doc.doi || '';
+      document.getElementById('newKeywords').value = doc.keywords.join(', ');
+      document.getElementById('newAbstract').value = doc.abstract;
+
+      // Make PDF optional when editing
+      document.getElementById('fileRequiredStar').innerText = '(Opcional al editar)';
+      document.getElementById('fileUploadPrompt').innerText = "Dejar vacío para conservar el PDF actual, o subir uno nuevo";
+
+      document.getElementById('uploadModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      lucide.createIcons();
+    }
+
     // Render documents list
     function renderCatalog() {
       const query = document.getElementById('searchInput').value.trim().toLowerCase();
@@ -853,7 +1047,6 @@
       const yearVal = document.getElementById('yearSelect').value;
       const sortVal = document.getElementById('sortSelect').value;
 
-      // Filter
       let filtered = catalog.filter(doc => {
         const matchesQuery = !query || 
           doc.title.toLowerCase().includes(query) ||
@@ -877,7 +1070,6 @@
         return matchesQuery && matchesType && matchesCareer && matchesYear;
       });
 
-      // Sort
       if (sortVal === 'recent') {
         filtered.sort((a, b) => b.year - a.year || b.id.localeCompare(a.id));
       } else if (sortVal === 'views') {
@@ -888,7 +1080,6 @@
         filtered.sort((a, b) => a.title.localeCompare(b.title));
       }
 
-      // Update counters
       document.getElementById('resultsCount').innerText = filtered.length;
       
       const summaryText = [];
@@ -898,7 +1089,7 @@
       if (yearVal !== 'ALL') summaryText.push(`Año: ${yearVal}`);
       document.getElementById('activeFilterSummary').innerText = summaryText.length > 0 
         ? `Filtros activos: ${summaryText.join(' • ')}` 
-        : 'Mostrando catálogo completo de publicaciones';
+        : 'Mostrando catálogo libre y abierto';
 
       const grid = document.getElementById('documentsGrid');
       const emptyState = document.getElementById('noResultsState');
@@ -912,7 +1103,6 @@
       emptyState.classList.add('hidden');
 
       grid.innerHTML = filtered.map(doc => {
-        // Tag styles based on type with red accents
         let badgeColor = 'bg-red-50 text-red-700 border-red-200';
         let typeIcon = 'graduation-cap';
         if (doc.type === 'Libro Digital') {
@@ -930,17 +1120,26 @@
           `<span class="inline-block bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded font-medium hover:bg-red-50 hover:text-red-700 cursor-pointer transition" onclick="searchByKeyword('${kw}')">#${kw}</span>`
         ).join(' ');
 
+        // Administrator Action Buttons (Edit and Delete)
+        const adminControls = isAdminLoggedIn ? `
+          <div class="flex items-center gap-1 border-r border-slate-200 pr-2 mr-1">
+            <button onclick="editDocument('${doc.id}')" title="Editar metadatos de esta obra" class="p-1.5 rounded-lg border border-blue-200 bg-blue-50/70 hover:bg-blue-100 text-blue-700 transition">
+              <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+            </button>
+            <button onclick="deleteDocument('${doc.id}')" title="Eliminar del repositorio" class="p-1.5 rounded-lg border border-red-200 bg-red-50/70 hover:bg-red-100 text-red-600 transition">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        ` : '';
+
         return `
           <article class="bg-white rounded-2xl p-5 border border-slate-200 hover:border-red-300 hover:shadow-md transition-all duration-200 flex flex-col md:flex-row gap-5 items-start">
-            <!-- Icon badge in red tone -->
             <div class="hidden sm:flex flex-col items-center justify-center w-16 h-20 rounded-xl bg-red-50/50 border border-red-200 text-red-600 flex-shrink-0 shadow-inner group">
               <i data-lucide="${typeIcon}" class="w-7 h-7 mb-1"></i>
               <span class="text-[9px] font-bold text-red-800 uppercase tracking-tighter">PDF</span>
             </div>
 
-            <!-- Content Area -->
             <div class="flex-grow space-y-2.5 w-full">
-              <!-- Header Badges -->
               <div class="flex flex-wrap items-center gap-2">
                 <span class="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${badgeColor}">
                   <i data-lucide="${typeIcon}" class="w-3 h-3"></i> ${doc.type}
@@ -954,29 +1153,24 @@
                 ${doc.doi ? `<span class="text-[10px] font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded ml-auto">${doc.doi}</span>` : ''}
               </div>
 
-              <!-- Title -->
               <h3 class="text-sm sm:text-base font-bold text-slate-900 hover:text-red-600 transition cursor-pointer leading-snug" onclick="openPdfViewer('${doc.id}')">
                 ${doc.title}
               </h3>
 
-              <!-- Authors & Advisors -->
               <div class="text-xs text-slate-600 flex flex-wrap items-center gap-x-4 gap-y-1">
                 <span><strong>Autor:</strong> ${doc.author}</span>
                 ${doc.advisor ? `<span class="text-slate-500"><strong>Tutor/Docente:</strong> ${doc.advisor}</span>` : ''}
                 <span class="text-slate-400"><strong>Págs:</strong> ${doc.pages || 'N/A'}</span>
               </div>
 
-              <!-- Abstract -->
               <p class="text-xs text-slate-600 leading-relaxed line-clamp-2">
                 ${doc.abstract}
               </p>
 
-              <!-- Keywords -->
               <div class="flex flex-wrap gap-1.5 pt-1">
                 ${keywordsHtml}
               </div>
 
-              <!-- Footer Actions -->
               <div class="flex flex-wrap items-center justify-between pt-3 border-t border-slate-100 text-xs gap-3">
                 <div class="flex items-center space-x-3 text-slate-500 text-[11px]">
                   <span class="flex items-center gap-1"><i data-lucide="eye" class="w-3.5 h-3.5 text-slate-400"></i> ${doc.views} lecturas</span>
@@ -984,6 +1178,7 @@
                 </div>
 
                 <div class="flex items-center space-x-2">
+                  ${adminControls}
                   <button onclick="openCitationModal('${doc.id}')" class="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium flex items-center gap-1.5 transition">
                     <i data-lucide="quote" class="w-3.5 h-3.5 text-red-600"></i> Citar
                   </button>
@@ -1052,7 +1247,7 @@
       window.scrollTo({ top: 380, behavior: 'smooth' });
     }
 
-    // PDF Viewer Modal Logic
+    // PDF Viewer
     function openPdfViewer(docId) {
       const doc = catalog.find(d => d.id === docId);
       if (!doc) return;
@@ -1140,7 +1335,6 @@
 
     function copyCitationText() {
       const text = document.getElementById('citationBox').innerText;
-      
       const tempTextArea = document.createElement("textarea");
       tempTextArea.value = text;
       document.body.appendChild(tempTextArea);
@@ -1155,8 +1349,21 @@
       }, 2500);
     }
 
-    // Upload & Deposit Form
+    // Upload & Deposit Form (ADMINISTRATOR ONLY)
     function openUploadModal() {
+      if (!isAdminLoggedIn) {
+        openAuthModal();
+        return;
+      }
+
+      document.getElementById('editDocId').value = '';
+      document.getElementById('uploadModalTitle').innerText = "Depositar Documento en el Repositorio";
+      document.getElementById('submitDocBtn').innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i> Guardar en Repositorio';
+      document.getElementById('uploadForm').reset();
+      selectedUploadedFileBlob = null;
+      document.getElementById('fileRequiredStar').innerText = '*';
+      document.getElementById('fileUploadPrompt').innerText = "Seleccione o arrastre el archivo PDF";
+
       document.getElementById('uploadModal').classList.remove('hidden');
       document.body.style.overflow = 'hidden';
       lucide.createIcons();
@@ -1178,6 +1385,12 @@
     function handleUploadSubmit(e) {
       e.preventDefault();
 
+      if (!isAdminLoggedIn) {
+        openAuthModal();
+        return;
+      }
+
+      const editId = document.getElementById('editDocId').value;
       const title = document.getElementById('newTitle').value.trim();
       const author = document.getElementById('newAuthor').value.trim();
       const career = document.getElementById('newCareer').value;
@@ -1190,6 +1403,35 @@
       const keywords = keywordsRaw.split(',').map(k => k.trim()).filter(k => k.length > 0);
       const abstract = document.getElementById('newAbstract').value.trim();
 
+      if (editId) {
+        // Mode: Edit existing document
+        const index = catalog.findIndex(d => d.id === editId);
+        if (index !== -1) {
+          catalog[index].title = title;
+          catalog[index].author = author;
+          catalog[index].advisor = advisor || "Comisión Académica ISTVL";
+          catalog[index].career = career;
+          catalog[index].type = type;
+          catalog[index].year = year;
+          catalog[index].pages = pages;
+          catalog[index].doi = doi;
+          catalog[index].keywords = keywords.length ? keywords : ["Educación", "ISTVL"];
+          catalog[index].abstract = abstract;
+
+          if (selectedUploadedFileBlob) {
+            catalog[index].pdfUrl = selectedUploadedFileBlob;
+          }
+
+          saveCatalog();
+          renderCatalog();
+          updateMetrics();
+          closeUploadModal();
+          showToast("¡Documento actualizado con éxito!");
+          return;
+        }
+      }
+
+      // Mode: Add new document
       const newDocument = {
         id: doi,
         title,
@@ -1217,10 +1459,11 @@
       selectedUploadedFileBlob = null;
       document.getElementById('fileUploadPrompt').innerText = "Seleccione o arrastre el archivo PDF";
 
+      showToast("¡Documento publicado exitosamente en el Repositorio!");
       window.scrollTo({ top: 380, behavior: 'smooth' });
     }
 
-    // Stats & Metrics Calculation
+    // Stats
     function updateMetrics() {
       const totalDocs = catalog.length;
       const thesesCount = catalog.filter(d => d.type === 'Tesis de Grado').length;
@@ -1232,7 +1475,6 @@
       document.getElementById('statTotalViews').innerText = totalViews;
       document.getElementById('statTotalDownloads').innerText = totalDownloads;
 
-      // Career distribution
       const countsByCareer = {};
       catalog.forEach(d => {
         countsByCareer[d.career] = (countsByCareer[d.career] || 0) + 1;
@@ -1265,19 +1507,7 @@
       }
     }
 
-    // Vercel deployment modal guide
-    function openVercelGuideModal() {
-      document.getElementById('vercelModal').classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
-      lucide.createIcons();
-    }
-
-    function closeVercelGuideModal() {
-      document.getElementById('vercelModal').classList.add('hidden');
-      document.body.style.overflow = 'auto';
-    }
-
-    // Backup & Restore Database
+    // Backup & Restore
     function exportDataJson() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(catalog, null, 2));
       const downloadAnchor = document.createElement('a');
@@ -1286,9 +1516,15 @@
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
+      showToast("Respaldo del repositorio generado en archivo JSON.");
     }
 
     function importDataJson(event) {
+      if (!isAdminLoggedIn) {
+        openAuthModal();
+        return;
+      }
+
       const file = event.target.files[0];
       if (!file) return;
 
@@ -1301,15 +1537,15 @@
             saveCatalog();
             renderCatalog();
             updateMetrics();
+            showToast("Base de datos institucional restaurada con éxito.");
           }
         } catch (err) {
-          console.error("Invalid JSON file", err);
+          showToast("Archivo JSON no válido", false);
         }
       };
       reader.readAsText(file);
     }
 
-    // Initialize on window load
     window.onload = function() {
       initData();
     };
