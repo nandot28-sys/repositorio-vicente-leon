@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Repositorio Digital - Instituto Superior Tecnológico Vicente León</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            istvl: {
+              50: '#fef2f2',
+              100: '#fee2e2',
+              600: '#dc2626',
+              700: '#b91c1c',
+              800: '#991b1b',
+              900: '#7f1d1d',
+              navy: '#0b1329',
+              red: '#dc2626',
+              accent: '#ef4444'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            serif: ['Cinzel', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom scrollbar for modern sleek aesthetic */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .line-clamp-3 {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans flex flex-col min-h-screen selection:bg-sky-200">
+
+  <!-- ================= TOP INSTITUTIONAL BAR ================= -->
+  <header class="bg-istvl-navy text-white text-xs border-b border-slate-700/60 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div class="flex items-center space-x-3">
+        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-red-600/20 text-red-300 border border-red-500/30">
+          <i data-lucide="award" class="w-3.5 h-3.5 mr-1"></i> Educación Superior Pública
+        </span>
+        <span class="text-slate-300 hidden sm:inline">Latacunga, Cotopaxi - Ecuador</span>
+      </div>
+      <div class="flex items-center space-x-4 text-slate-300">
+        <a href="https://istvicenteleon.edu.ec" target="_blank" rel="noopener noreferrer" class="hover:text-red-400 transition-colors flex items-center gap-1">
+          <i data-lucide="globe" class="w-3.5 h-3.5"></i> Portal Institucional
+        </a>
+        <span class="text-slate-600">|</span>
+        <button onclick="openVercelGuideModal()" class="hover:text-red-400 transition-colors flex items-center gap-1 text-red-300 font-medium">
+          <i data-lucide="cloud-upload" class="w-3.5 h-3.5"></i> ¿Cómo alojar gratis en Vercel?
+        </button>
+      </div>
+    </div>
+
+    <!-- MAIN NAVBAR -->
+    <nav class="bg-slate-900/95 backdrop-blur-md border-b border-slate-800">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
+        <!-- Logo & Title -->
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="resetFiltersAndHome()">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-red-600 to-rose-800 p-0.5 shadow-lg shadow-red-950/40 flex items-center justify-center">
+            <div class="w-full h-full bg-slate-900 rounded-[10px] flex items-center justify-center">
+              <i data-lucide="graduation-cap" class="w-6 h-6 text-red-500"></i>
+            </div>
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <h1 class="text-base sm:text-lg font-bold tracking-tight text-white font-serif leading-none">
+                IST <span class="text-red-500">VICENTE LEÓN</span>
+              </h1>
+              <span class="bg-red-500/20 text-red-300 border border-red-500/30 text-[10px] px-1.5 py-0.2 rounded font-sans uppercase font-bold tracking-wider">RID</span>
+            </div>
+            <p class="text-[11px] text-slate-400 font-normal">Repositorio Institucional Digital Abierto</p>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center space-x-2 sm:space-x-3">
+          <button onclick="toggleStatsModal()" class="hidden md:inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 transition">
+            <i data-lucide="bar-chart-2" class="w-4 h-4 mr-1.5 text-red-400"></i> Métricas
+          </button>
+          
+          <button onclick="openUploadModal()" class="inline-flex items-center px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 shadow-md shadow-red-600/30 transition-all transform active:scale-95">
+            <i data-lucide="upload-cloud" class="w-4 h-4 mr-1.5"></i> Depositar Documento
+          </button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ================= HERO SECTION & SEARCH ================= -->
+  <section class="bg-gradient-to-b from-slate-900 via-istvl-navy to-slate-900 text-white pt-10 pb-16 px-4 sm:px-6 lg:px-8 border-b border-slate-800 relative overflow-hidden">
+    <!-- Background subtle glow -->
+    <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#ef4444_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none"></div>
+    <div class="absolute -top-24 -left-24 w-96 h-96 bg-red-600/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-red-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="max-w-4xl mx-auto text-center relative z-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-red-300 text-xs font-medium mb-4 backdrop-blur-sm">
+        <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+        <span>Acceso Abierto a la Producción Académica y Tecnológica</span>
+      </div>
+      
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-3">
+        Tesis, Proyectos, Libros y Guías Académicas
+      </h2>
+      <p class="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto mb-8 font-light">
+        Consulte, lea en línea o descargue de forma libre y gratuita los trabajos de titulación, proyectos integradores y guías de estudio del IST Vicente León.
+      </p>
+
+      <!-- Search Box -->
+      <div class="relative max-w-3xl mx-auto shadow-2xl rounded-2xl bg-white/10 p-2 backdrop-blur-md border border-white/15">
+        <div class="flex flex-col sm:flex-row items-center gap-2">
+          <div class="relative w-full flex-grow">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <i data-lucide="search" class="w-5 h-5"></i>
+            </div>
+            <input 
+              type="text" 
+              id="searchInput" 
+              placeholder="Buscar por título, autor, palabras clave, tutor o carrera..." 
+              class="w-full pl-11 pr-4 py-3 bg-white text-slate-900 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-500 placeholder-slate-400 shadow-inner"
+              oninput="handleSearch()"
+            >
+            <button 
+              id="clearSearchBtn" 
+              onclick="clearSearch()" 
+              class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </div>
+          <button 
+            onclick="handleSearch()" 
+            class="w-full sm:w-auto px-6 py-3 bg-red-600 hover:bg-red-500 text-white font-semibold text-sm rounded-xl transition shadow-lg shadow-red-600/40 flex items-center justify-center gap-2">
+            <span>Buscar</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick career pills updated with official website careers -->
+      <div class="mt-5 flex flex-wrap items-center justify-center gap-2 text-xs text-slate-300">
+        <span class="text-slate-400 font-medium mr-1">Carreras oficiales:</span>
+        <button onclick="setQuickCareer('Desarrollo de Software')" class="px-2.5 py-1 rounded-full bg-slate-800/80 hover:bg-red-600/30 hover:border-red-400 border border-slate-700 transition">💻 Software</button>
+        <button onclick="setQuickCareer('Administración Financiera')" class="px-2.5 py-1 rounded-full bg-slate-800/80 hover:bg-red-600/30 hover:border-red-400 border border-slate-700 transition">📈 Admin. Financiera</button>
+        <button onclick="setQuickCareer('Contabilidad y Asesoría Tributaria')" class="px-2.5 py-1 rounded-full bg-slate-800/80 hover:bg-red-600/30 hover:border-red-400 border border-slate-700 transition">📊 Contabilidad</button>
+        <button onclick="setQuickCareer('Gastronomía')" class="px-2.5 py-1 rounded-full bg-slate-800/80 hover:bg-red-600/30 hover:border-red-400 border border-slate-700 transition">🍳 Gastronomía</button>
+        <button onclick="setQuickCareer('Diseño Gráfico y Multimedia')" class="px-2.5 py-1 rounded-full bg-slate-800/80 hover:bg-red-600/30 hover:border-red-400 border border-slate-700 transition">🎨 Diseño Gráfico</button>
+        <button onclick="setQuickCareer('Marketing Digital y Gestión de Negocios')" class="px-2.5 py-1 rounded-full bg-slate-800/80 hover:bg-red-600/30 hover:border-red-400 border border-slate-700 transition">🎯 Marketing Digital</button>
+        <button onclick="setQuickCareer('Seguridad e Higiene del Trabajo')" class="px-2.5 py-1 rounded-full bg-slate-800/80 hover:bg-red-600/30 hover:border-red-400 border border-slate-700 transition">🦺 Seguridad e Higiene</button>
+        <button onclick="setQuickCareer('Control de Incendios y Operaciones de Rescate')" class="px-2.5 py-1 rounded-full bg-slate-800/80 hover:bg-red-600/30 hover:border-red-400 border border-slate-700 transition">🚒 Bomberos / Rescate</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= MAIN CONTENT LAYOUT ================= -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      
+      <!-- SIDEBAR FILTERS -->
+      <aside class="lg:col-span-1 space-y-6">
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+              <i data-lucide="sliders-horizontal" class="w-4 h-4 text-red-600"></i> Filtros de Búsqueda
+            </h3>
+            <button onclick="resetFilters()" class="text-xs text-red-600 hover:text-red-800 font-medium">
+              Limpiar
+            </button>
+          </div>
+
+          <!-- Document Type Filter -->
+          <div class="mt-4">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Tipo de Documento</label>
+            <div class="space-y-1.5" id="typeFilterOptions">
+              <label class="flex items-center text-xs text-slate-700 hover:text-red-700 cursor-pointer">
+                <input type="radio" name="docType" value="ALL" checked onchange="handleFiltersChange()" class="text-red-600 focus:ring-red-500 mr-2 rounded">
+                Todos los tipos
+              </label>
+              <label class="flex items-center text-xs text-slate-700 hover:text-red-700 cursor-pointer">
+                <input type="radio" name="docType" value="Tesis de Grado" onchange="handleFiltersChange()" class="text-red-600 focus:ring-red-500 mr-2 rounded">
+                🎓 Tesis de Grado
+              </label>
+              <label class="flex items-center text-xs text-slate-700 hover:text-red-700 cursor-pointer">
+                <input type="radio" name="docType" value="Libro Digital" onchange="handleFiltersChange()" class="text-red-600 focus:ring-red-500 mr-2 rounded">
+                📚 Libros Digitales
+              </label>
+              <label class="flex items-center text-xs text-slate-700 hover:text-red-700 cursor-pointer">
+                <input type="radio" name="docType" value="Proyecto Integrador" onchange="handleFiltersChange()" class="text-red-600 focus:ring-red-500 mr-2 rounded">
+                🛠️ Proyectos Integradores
+              </label>
+              <label class="flex items-center text-xs text-slate-700 hover:text-red-700 cursor-pointer">
+                <input type="radio" name="docType" value="Guía Académica" onchange="handleFiltersChange()" class="text-red-600 focus:ring-red-500 mr-2 rounded">
+                📑 Guías Académicas
+              </label>
+            </div>
+          </div>
+
+          <!-- Career Filter updated with 10 official careers from website -->
+          <div class="mt-6 pt-4 border-t border-slate-100">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Carrera Institucional</label>
+            <select id="careerSelect" onchange="handleFiltersChange()" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+              <option value="ALL">Todas las carreras</option>
+              <option value="Desarrollo de Software">Desarrollo de Software</option>
+              <option value="Administración Financiera">Administración Financiera</option>
+              <option value="Contabilidad y Asesoría Tributaria">Contabilidad y Asesoría Tributaria</option>
+              <option value="Gastronomía">Gastronomía</option>
+              <option value="Diseño Gráfico y Multimedia">Diseño Gráfico y Multimedia</option>
+              <option value="Marketing Digital y Gestión de Negocios">Marketing Digital y Gestión de Negocios</option>
+              <option value="Seguridad e Higiene del Trabajo">Seguridad e Higiene del Trabajo</option>
+              <option value="Control de Incendios y Operaciones de Rescate">Control de Incendios y Operaciones de Rescate</option>
+              <option value="Administración de Infraestructura y Plataformas Tecnológicas">Administración de Infraestructura y Plataformas Tecnológicas</option>
+              <option value="Producción y Realización Audiovisual">Producción y Realización Audiovisual</option>
+            </select>
+          </div>
+
+          <!-- Year Filter -->
+          <div class="mt-6 pt-4 border-t border-slate-100">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Año de Publicación</label>
+            <select id="yearSelect" onchange="handleFiltersChange()" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+              <option value="ALL">Cualquier año</option>
+              <option value="2026">2026</option>
+              <option value="2025">2025</option>
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
+              <option value="2022">2022</option>
+              <option value="2020-2021">2020 - 2021</option>
+            </select>
+          </div>
+
+          <!-- Order by -->
+          <div class="mt-6 pt-4 border-t border-slate-100">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Ordenar Por</label>
+            <select id="sortSelect" onchange="handleFiltersChange()" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+              <option value="recent">Más recientes</option>
+              <option value="views">Más leídos / vistos</option>
+              <option value="downloads">Más descargados</option>
+              <option value="title">Título (A-Z)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Institutional Info Badge in Red -->
+        <div class="bg-gradient-to-br from-slate-900 to-istvl-navy rounded-2xl p-4 text-white text-xs border border-slate-700/60 shadow-sm">
+          <div class="flex items-center gap-2 mb-2 text-red-400 font-semibold">
+            <i data-lucide="shield-check" class="w-4 h-4"></i>
+            <span>Licenciamiento Abierto ISTVL</span>
+          </div>
+          <p class="text-slate-300 leading-relaxed text-[11px]">
+            Los documentos contenidos en este repositorio están bajo licencia <span class="text-white font-medium">Creative Commons Atribución-NoComercial 4.0</span>. Se permite su consulta y citación libre para fines académicos e investigativos.
+          </p>
+        </div>
+      </aside>
+
+      <!-- RESULTS LIST -->
+      <section class="lg:col-span-3">
+        <!-- Results header bar -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-4 border-b border-slate-200 gap-2">
+          <div>
+            <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+              <span id="resultsCount">0</span> publicaciones encontradas
+            </h2>
+            <p id="activeFilterSummary" class="text-xs text-slate-500">Mostrando catálogo completo</p>
+          </div>
+          <div class="flex items-center gap-2 text-xs">
+            <button onclick="exportDataJson()" title="Descargar respaldo del catálogo en JSON" class="px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 flex items-center gap-1 font-medium shadow-sm transition">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar BD
+            </button>
+            <button onclick="document.getElementById('importFileInput').click()" title="Cargar catálogo JSON" class="px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 flex items-center gap-1 font-medium shadow-sm transition">
+              <i data-lucide="upload" class="w-3.5 h-3.5"></i> Importar BD
+            </button>
+            <input type="file" id="importFileInput" accept=".json" class="hidden" onchange="importDataJson(event)">
+          </div>
+        </div>
+
+        <!-- Cards Container -->
+        <div id="documentsGrid" class="space-y-4">
+          <!-- Dynamically populated -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="noResultsState" class="hidden py-16 text-center bg-white rounded-2xl border border-slate-200 p-8">
+          <div class="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i data-lucide="folder-search" class="w-8 h-8"></i>
+          </div>
+          <h3 class="text-base font-bold text-slate-800">No se encontraron documentos</h3>
+          <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+            No hay publicaciones que coincidan con los filtros aplicados. Intente con términos más generales o limpie los filtros.
+          </p>
+          <button onclick="resetFilters()" class="mt-4 px-4 py-2 bg-red-600 text-white rounded-xl text-xs font-semibold hover:bg-red-500 transition">
+            Ver todos los documentos
+          </button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ================= MODAL: PDF VIEWER ================= -->
+  <div id="pdfViewerModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-2 sm:p-4">
+    <div class="bg-white w-full max-w-5xl h-[92vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-300">
+      <!-- Viewer Header -->
+      <div class="bg-slate-900 text-white px-4 py-3 flex items-center justify-between border-b border-slate-800">
+        <div class="flex items-center space-x-3 overflow-hidden">
+          <span class="p-1.5 rounded-lg bg-red-500/20 text-red-400">
+            <i data-lucide="file-text" class="w-5 h-5"></i>
+          </span>
+          <div class="truncate">
+            <h4 id="viewerTitle" class="text-xs sm:text-sm font-bold truncate">Visualizador de Documento</h4>
+            <p id="viewerSubtitle" class="text-[11px] text-slate-400 truncate">IST Vicente León - Repositorio Institucional</p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2 flex-shrink-0">
+          <a id="viewerDownloadBtn" href="#" download class="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-medium flex items-center gap-1.5 transition">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline">Descargar PDF</span>
+          </a>
+          <button onclick="closePdfViewer()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Viewer Body / Iframe -->
+      <div class="flex-grow bg-slate-100 relative">
+        <iframe id="pdfIframe" src="" class="w-full h-full border-0"></iframe>
+        
+        <div id="iframeNotice" class="absolute bottom-2 right-2 bg-slate-900/80 text-white text-[11px] px-2.5 py-1 rounded backdrop-blur-md flex items-center gap-2 pointer-events-none">
+          <i data-lucide="eye" class="w-3.5 h-3.5 text-red-400"></i>
+          <span>Lector digital oficial ISTVL</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: ACADEMIC CITATION ================= -->
+  <div id="citationModal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-xl rounded-2xl shadow-2xl p-6 border border-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
+            <i data-lucide="quote" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-800 text-sm">Citar este Documento</h3>
+            <p class="text-[11px] text-slate-500">Copie el formato de cita académica estándar</p>
+          </div>
+        </div>
+        <button onclick="closeCitationModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Citation Formats Tabs -->
+      <div class="flex border-b border-slate-200 gap-2 mb-4 text-xs font-semibold">
+        <button onclick="switchCiteTab('apa')" id="tab-apa" class="py-2 px-3 border-b-2 border-red-600 text-red-600">APA (7ma ed.)</button>
+        <button onclick="switchCiteTab('ieee')" id="tab-ieee" class="py-2 px-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700">IEEE</button>
+        <button onclick="switchCiteTab('harvard')" id="tab-harvard" class="py-2 px-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700">Harvard</button>
+        <button onclick="switchCiteTab('bibtex')" id="tab-bibtex" class="py-2 px-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700">BibTeX</button>
+      </div>
+
+      <!-- Text Container -->
+      <div class="relative bg-slate-50 p-4 rounded-xl border border-slate-200 font-mono text-xs text-slate-800 leading-relaxed" id="citationBox">
+        Generando cita...
+      </div>
+
+      <div class="mt-4 flex items-center justify-between">
+        <span id="copyConfirmNotice" class="text-xs text-emerald-600 font-medium opacity-0 transition-opacity flex items-center gap-1">
+          <i data-lucide="check" class="w-3.5 h-3.5"></i> ¡Copiado al portapapeles!
+        </span>
+        <div class="flex gap-2">
+          <button onclick="copyCitationText()" class="px-4 py-2 bg-red-600 text-white rounded-xl text-xs font-semibold hover:bg-red-700 flex items-center gap-1.5 shadow-sm transition">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar Cita
+          </button>
+          <button onclick="closeCitationModal()" class="px-3 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-medium hover:bg-slate-200 transition">
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: UPLOAD / DEPOSIT ================= -->
+  <div id="uploadModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl p-6 border border-slate-200 my-8">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+        <div class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-xl bg-red-50 text-red-600 flex items-center justify-center border border-red-200">
+            <i data-lucide="upload-cloud" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-base">Depositar Documento en el Repositorio</h3>
+            <p class="text-[11px] text-slate-500">Módulo de auto-archivo académico para el IST Vicente León</p>
+          </div>
+        </div>
+        <button onclick="closeUploadModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="uploadForm" onsubmit="handleUploadSubmit(event)" class="space-y-4 text-xs">
+        <!-- PDF File Picker -->
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Archivo del Documento (PDF) *</label>
+          <div class="border-2 border-dashed border-slate-300 hover:border-red-500 rounded-xl p-4 text-center cursor-pointer transition bg-slate-50 hover:bg-red-50/40" onclick="document.getElementById('docFile').click()">
+            <input type="file" id="docFile" accept="application/pdf" class="hidden" required onchange="handleFileSelected(this)">
+            <i data-lucide="file-up" class="w-8 h-8 text-red-600 mx-auto mb-1"></i>
+            <p class="font-semibold text-slate-700" id="fileUploadPrompt">Seleccione o arrastre el archivo PDF</p>
+            <p class="text-[10px] text-slate-400 mt-0.5">Formato PDF estándar con texto indexable.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Tipo de Publicación *</label>
+            <select id="newDocType" required class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-slate-800 focus:ring-2 focus:ring-red-500 focus:outline-none">
+              <option value="Tesis de Grado">🎓 Tesis de Grado</option>
+              <option value="Libro Digital">📚 Libro Digital</option>
+              <option value="Proyecto Integrador">🛠️ Proyecto Integrador</option>
+              <option value="Guía Académica">📑 Guía Académica</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Carrera Institucional *</label>
+            <select id="newCareer" required class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-slate-800 focus:ring-2 focus:ring-red-500 focus:outline-none">
+              <option value="Desarrollo de Software">Desarrollo de Software</option>
+              <option value="Administración Financiera">Administración Financiera</option>
+              <option value="Contabilidad y Asesoría Tributaria">Contabilidad y Asesoría Tributaria</option>
+              <option value="Gastronomía">Gastronomía</option>
+              <option value="Diseño Gráfico y Multimedia">Diseño Gráfico y Multimedia</option>
+              <option value="Marketing Digital y Gestión de Negocios">Marketing Digital y Gestión de Negocios</option>
+              <option value="Seguridad e Higiene del Trabajo">Seguridad e Higiene del Trabajo</option>
+              <option value="Control de Incendios y Operaciones de Rescate">Control de Incendios y Operaciones de Rescate</option>
+              <option value="Administración de Infraestructura y Plataformas Tecnológicas">Administración de Infraestructura y Plataformas Tecnológicas</option>
+              <option value="Producción y Realización Audiovisual">Producción y Realización Audiovisual</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Título Completo del Documento *</label>
+          <input type="text" id="newTitle" required placeholder="Ej: Guía Práctica de Laboratorio de Programación en Python..." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-slate-800 focus:ring-2 focus:ring-red-500 focus:outline-none">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Autor(es) / Docente *</label>
+            <input type="text" id="newAuthor" required placeholder="Apellidos, Nombres (Ej: Viteri, Marco)" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-slate-800 focus:ring-2 focus:ring-red-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Tutor / Asesor Académico</label>
+            <input type="text" id="newAdvisor" placeholder="Ej: Ing. Marco Viteri, Mgs." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-slate-800 focus:ring-2 focus:ring-red-500 focus:outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Año de Publicación *</label>
+            <input type="number" id="newYear" min="2000" max="2030" value="2026" required class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-slate-800 focus:ring-2 focus:ring-red-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Número de Páginas</label>
+            <input type="number" id="newPages" min="1" value="65" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-slate-800 focus:ring-2 focus:ring-red-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Código / DOI / ISBN</label>
+            <input type="text" id="newDoi" placeholder="Ej: ISTVL-2026-GA-001" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-slate-800 focus:ring-2 focus:ring-red-500 focus:outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Palabras Clave (separadas por comas) *</label>
+          <input type="text" id="newKeywords" required placeholder="Ej: Guía Práctica, Algoritmos, ISTVL, Latacunga" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-slate-800 focus:ring-2 focus:ring-red-500 focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Resumen / Abstract *</label>
+          <textarea id="newAbstract" rows="3" required placeholder="Sintetice el contenido, competencias a desarrollar y aplicaciones de la obra..." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-slate-800 focus:ring-2 focus:ring-red-500 focus:outline-none"></textarea>
+        </div>
+
+        <div class="flex items-center gap-2 pt-2 border-t border-slate-100 justify-end">
+          <button type="button" onclick="closeUploadModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl font-medium hover:bg-slate-200 transition">
+            Cancelar
+          </button>
+          <button type="submit" class="px-5 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl font-semibold shadow-md shadow-red-600/30 flex items-center gap-1.5 transition">
+            <i data-lucide="check-circle" class="w-4 h-4"></i> Guardar en Repositorio
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: METRICS & STATS ================= -->
+  <div id="statsModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl p-6 border border-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+        <div class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-xl bg-red-50 text-red-600 flex items-center justify-center">
+            <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-800 text-base">Impacto y Estadísticas del Repositorio</h3>
+            <p class="text-[11px] text-slate-500">Métricas acumuladas del IST Vicente León</p>
+          </div>
+        </div>
+        <button onclick="toggleStatsModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Quick Metrics Counters -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center">
+          <span class="text-xs text-slate-500 block">Total Obras</span>
+          <span class="text-xl font-extrabold text-slate-900" id="statTotalDocs">0</span>
+        </div>
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center">
+          <span class="text-xs text-slate-500 block">Tesis Registradas</span>
+          <span class="text-xl font-extrabold text-red-600" id="statTotalTheses">0</span>
+        </div>
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center">
+          <span class="text-xs text-slate-500 block">Descargas</span>
+          <span class="text-xl font-extrabold text-emerald-600" id="statTotalDownloads">0</span>
+        </div>
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center">
+          <span class="text-xs text-slate-500 block">Lecturas en Línea</span>
+          <span class="text-xl font-extrabold text-rose-600" id="statTotalViews">0</span>
+        </div>
+      </div>
+
+      <!-- Carrera Distribution Bars -->
+      <h4 class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-3">Distribución por Carrera Institucional</h4>
+      <div class="space-y-2.5 text-xs max-h-60 overflow-y-auto pr-1" id="statsCareerBars">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-slate-100 flex justify-end">
+        <button onclick="toggleStatsModal()" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-semibold hover:bg-slate-800 transition">
+          Entendido
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: VERCEL DEPLOY GUIDE ================= -->
+  <div id="vercelModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl p-6 border border-slate-200 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+        <div class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center">
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M24 22.525H0l12-21.05 12 21.05z"/></svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-base">Publicación Gratuita en Vercel</h3>
+            <p class="text-[11px] text-slate-500">Pasos para desplegar el repositorio del IST Vicente León</p>
+          </div>
+        </div>
+        <button onclick="closeVercelGuideModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3.5 text-xs text-slate-600 leading-relaxed">
+        <div class="p-3 bg-red-50 rounded-xl border border-red-100 text-red-900 flex items-start gap-2">
+          <i data-lucide="info" class="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5"></i>
+          <span>Este repositorio es completamente estático y modular, compatible con el tier Hobby 100% gratuito de Vercel y GitHub Pages.</span>
+        </div>
+
+        <div class="flex gap-3 items-start">
+          <div class="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center font-bold text-[11px] flex-shrink-0">1</div>
+          <div>
+            <strong class="text-slate-800">Crea un repositorio en GitHub:</strong>
+            <p>Guarda este archivo como <code>index.html</code> y súbelo a un repositorio público o privado en tu cuenta de <a href="https://github.com" target="_blank" class="text-red-600 underline">GitHub.com</a>.</p>
+          </div>
+        </div>
+
+        <div class="flex gap-3 items-start">
+          <div class="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center font-bold text-[11px] flex-shrink-0">2</div>
+          <div>
+            <strong class="text-slate-800">Inicia sesión en Vercel:</strong>
+            <p>Accede a <a href="https://vercel.com" target="_blank" class="text-red-600 underline">Vercel.com</a> con tu usuario de GitHub.</p>
+          </div>
+        </div>
+
+        <div class="flex gap-3 items-start">
+          <div class="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center font-bold text-[11px] flex-shrink-0">3</div>
+          <div>
+            <strong class="text-slate-800">Despliegue automático:</strong>
+            <p>Selecciona tu repositorio y haz clic en <strong>Deploy</strong>. Obtendrás un enlace con HTTPS automático como <code>repositorio-ist-vicenteleon.vercel.app</code>.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-slate-100 flex justify-end">
+        <button onclick="closeVercelGuideModal()" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-semibold hover:bg-slate-800 transition">
+          Cerrar Guía
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-slate-950 text-slate-400 text-xs border-t border-slate-800 mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div class="md:col-span-2 space-y-3">
+          <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center text-white font-bold">
+              VL
+            </div>
+            <span class="text-white font-bold font-serif text-sm">Instituto Superior Tecnológico Vicente León</span>
+          </div>
+          <p class="text-slate-400 text-xs max-w-md leading-relaxed">
+            Plataforma institucional para la preservación, catalogación y difusión libre de tesis, proyectos de titulación y guías académicas en Latacunga, Cotopaxi.
+          </p>
+          <div class="flex items-center space-x-3 pt-2 text-slate-300">
+            <span class="inline-flex items-center gap-1 text-[11px]">
+              <i data-lucide="map-pin" class="w-3.5 h-3.5 text-red-500"></i> Latacunga, Cotopaxi
+            </span>
+            <span>•</span>
+            <span class="inline-flex items-center gap-1 text-[11px]">
+              <i data-lucide="mail" class="w-3.5 h-3.5 text-red-400"></i> biblioteca@istvicenteleon.edu.ec
+            </span>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-white font-semibold text-xs uppercase tracking-wider mb-3">Carreras Oficiales</h4>
+          <ul class="space-y-1.5 text-slate-400 text-xs">
+            <li><button onclick="setQuickCareer('Desarrollo de Software')" class="hover:text-red-400 transition">Desarrollo de Software</button></li>
+            <li><button onclick="setQuickCareer('Administración Financiera')" class="hover:text-red-400 transition">Administración Financiera</button></li>
+            <li><button onclick="setQuickCareer('Contabilidad y Asesoría Tributaria')" class="hover:text-red-400 transition">Contabilidad y Asesoría Tributaria</button></li>
+            <li><button onclick="setQuickCareer('Gastronomía')" class="hover:text-red-400 transition">Gastronomía</button></li>
+            <li><button onclick="setQuickCareer('Diseño Gráfico y Multimedia')" class="hover:text-red-400 transition">Diseño Gráfico y Multimedia</button></li>
+            <li><button onclick="setQuickCareer('Marketing Digital y Gestión de Negocios')" class="hover:text-red-400 transition">Marketing Digital y Negocios</button></li>
+            <li><button onclick="setQuickCareer('Seguridad e Higiene del Trabajo')" class="hover:text-red-400 transition">Seguridad e Higiene</button></li>
+            <li><button onclick="setQuickCareer('Control de Incendios y Operaciones de Rescate')" class="hover:text-red-400 transition">Control de Incendios y Rescate</button></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-white font-semibold text-xs uppercase tracking-wider mb-3">Directorio Académico</h4>
+          <ul class="space-y-1.5 text-slate-400 text-xs">
+            <li><a href="https://istvicenteleon.edu.ec" target="_blank" rel="noopener noreferrer" class="hover:text-white transition">Sitio Web Oficial</a></li>
+            <li><a href="#" onclick="openUploadModal(); return false;" class="hover:text-white transition">Auto-archivo Digital</a></li>
+            <li><a href="#" onclick="openVercelGuideModal(); return false;" class="hover:text-white transition">Despliegue en Vercel</a></li>
+            <li><a href="https://creativecommons.org/licenses/by-nc/4.0/deed.es" target="_blank" rel="noopener noreferrer" class="hover:text-white transition">Licencia Creative Commons</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="border-t border-slate-900 pt-6 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-400 gap-2">
+        <p>© 2026 Instituto Superior Tecnológico Vicente León. Todos los derechos reservados.</p>
+        <p class="flex items-center gap-1">
+          Desarrollado para despliegue serverless gratuito en <span class="text-white font-medium">Vercel</span>
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ================= JAVASCRIPT LOGIC ================= -->
+  <script>
+    // Initial Curated Dataset matching official IST Vicente León careers & Guías Académicas
+    const INITIAL_CATALOG = [
+      {
+        id: "ISTVL-2026-SOF-001",
+        title: "Desarrollo de un Sistema Web Progresivo con Inteligencia Artificial para la Gestión y Catalogación de Recursos Bibliográficos Universitarios",
+        author: "Chiluisa Toapanta, Kevin Marcelo",
+        advisor: "Ing. Marco A. Viteri, Mgs.",
+        career: "Desarrollo de Software",
+        type: "Tesis de Grado",
+        year: 2026,
+        pages: 114,
+        doi: "ISTVL-2026-SOF-001",
+        keywords: ["PWA", "Inteligencia Artificial", "Indexación", "PostgreSQL", "Full-stack"],
+        abstract: "El presente trabajo de titulación implementa una solución tecnológica basada en microservicios y arquitectura web progresiva para la digitalización y preservación de documentos académicos en el Instituto Superior Tecnológico Vicente León.",
+        views: 342,
+        downloads: 189,
+        pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+      },
+      {
+        id: "ISTVL-2025-CON-002",
+        title: "Manual Práctico de Normas Internacionales de Información Financiera (NIIF para PYMES) en Empresas de Cotopaxi",
+        author: "Albarracín Morales, Andrea Estefanía",
+        advisor: "Eco. Patricia Revelo, PhD.",
+        career: "Contabilidad y Asesoría Tributaria",
+        type: "Libro Digital",
+        year: 2025,
+        pages: 210,
+        doi: "ISBN-978-9942-88-021-4",
+        keywords: ["NIIF PYMES", "Tributación", "Contabilidad de Costos", "Cotopaxi", "Auditoría"],
+        abstract: "Compendio bibliográfico para estudiantes de tercer nivel técnico sobre la adopción de las NIIF en el sector manufacturero y comercial de la provincia de Cotopaxi. Incluye modelos de balances financieros y normativas del SRI.",
+        views: 890,
+        downloads: 412,
+        pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+      },
+      {
+        id: "ISTVL-2025-GAS-003",
+        title: "Rescate del Patrimonio Gastronómico Ancestral de Latacunga: Recetario Técnico y Análisis Bromatológico de la Chugchucara Tradicional",
+        author: "López Guanoluisa, Christian Paul",
+        advisor: "Chef Edison Caiza, Lcdo.",
+        career: "Gastronomía",
+        type: "Proyecto Integrador",
+        year: 2025,
+        pages: 96,
+        doi: "ISTVL-2025-GAS-014",
+        keywords: ["Chugchucara", "Patrimonio Culinario", "Estandarización", "Bromatología", "Latacunga"],
+        abstract: "Investigación aplicada orientada a la estandarización técnica de porcionamiento, tiempos de cocción y valores nutricionales de la Chugchucara latacungueña, garantizando la inocuidad alimentaria y el rescate cultural.",
+        views: 520,
+        downloads: 275,
+        pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+      },
+      {
+        id: "ISTVL-2025-DIS-004",
+        title: "Guía Académica y Metodológica de Identidad Corporativa y Diseño Tipográfico Experimental",
+        author: "Mendoza Salguero, David Alejandro",
+        advisor: "Dis. Pamela Cruz, Mgs.",
+        career: "Diseño Gráfico y Multimedia",
+        type: "Guía Académica",
+        year: 2025,
+        pages: 74,
+        doi: "ISTVL-2025-DGM-008",
+        keywords: ["Diseño Gráfico", "Branding", "Tipografía", "Multimedia", "Guía Práctica"],
+        abstract: "Guía académica instruccional para talleres de diseño vectorial y composición visual. Detalla los procesos de construcción de manuales de marca e identidad gráfica para instituciones y PYMES locales.",
+        views: 450,
+        downloads: 210,
+        pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+      },
+      {
+        id: "ISTVL-2024-ADM-005",
+        title: "Modelo de Gestión Financiera y Mitigación de Riesgos Crediticios para Cooperativas de Ahorro y Crédito en Pujilí y Latacunga",
+        author: "Mena Cárdenas, Diana Carolina",
+        advisor: "Mgs. Fernando Tapia",
+        career: "Administración Financiera",
+        type: "Tesis de Grado",
+        year: 2024,
+        pages: 135,
+        doi: "ISTVL-2024-ADM-088",
+        keywords: ["Riesgo Crediticio", "Economía Popular y Solidaria", "Liquidez", "Cooperativismo"],
+        abstract: "Propuesta metodológica para la evaluación del riesgo de morosidad en microcréditos rurales del segmento 4 y 5 de la SEPS en Cotopaxi. Se construyó una matriz de scoring crediticio adaptada a pequeños productores.",
+        views: 410,
+        downloads: 198,
+        pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+      },
+      {
+        id: "ISTVL-2024-SEG-006",
+        title: "Guía Académica de Protocolos de Evacuación y Prevención de Riesgos Ergonómicos en Talleres Industriales",
+        author: "Sánchez Yánez, Roberto Carlos",
+        advisor: "Ing. Lorena Jácome, Mgs.",
+        career: "Seguridad e Higiene del Trabajo",
+        type: "Guía Académica",
+        year: 2024,
+        pages: 58,
+        doi: "ISTVL-2024-SHT-012",
+        keywords: ["Seguridad Laboral", "Ergonomía", "Prevención de Accidentes", "Protocolos"],
+        abstract: "Manual práctico y pedagógico de normativas de seguridad, métodos de inspección RULA/REBA y planes de contingencia para brigadas de emergencia en el contexto productivo de Cotopaxi.",
+        views: 610,
+        downloads: 289,
+        pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+      },
+      {
+        id: "ISTVL-2024-BOM-007",
+        title: "Manual Operativo de Técnicas de Extracción Vehicular y Manejo Inicial de Trauma Prehospitalario",
+        author: "Cando Tipantuña, Wilson Gabriel",
+        advisor: "Myr. Ángel Baño, Lcdo.",
+        career: "Control de Incendios y Operaciones de Rescate",
+        type: "Proyecto Integrador",
+        year: 2024,
+        pages: 82,
+        doi: "ISTVL-2024-CIOR-003",
+        keywords: ["Extracción Vehicular", "Rescate", "Primeros Auxilios", "Seguridad Bomberil"],
+        abstract: "Estandarización de procedimientos operativos y medidas de bioseguridad en incidentes de tránsito en la carretera Panamericana E35 tramo Lasso-Latacunga.",
+        views: 470,
+        downloads: 230,
+        pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+      }
+    ];
+
+    // State
+    let catalog = [];
+    let currentDocumentForCitation = null;
+    let selectedUploadedFileBlob = null;
+
+    // Load initial data
+    function initData() {
+      const stored = localStorage.getItem('istvl_repository_data_v2');
+      if (stored) {
+        try {
+          catalog = JSON.parse(stored);
+        } catch (e) {
+          catalog = [...INITIAL_CATALOG];
+        }
+      } else {
+        catalog = [...INITIAL_CATALOG];
+        saveCatalog();
+      }
+      renderCatalog();
+      updateMetrics();
+      lucide.createIcons();
+    }
+
+    function saveCatalog() {
+      try {
+        localStorage.setItem('istvl_repository_data_v2', JSON.stringify(catalog));
+      } catch (e) {
+        console.warn("Storage quota warning", e);
+      }
+    }
+
+    // Render documents list
+    function renderCatalog() {
+      const query = document.getElementById('searchInput').value.trim().toLowerCase();
+      const typeRadio = document.querySelector('input[name="docType"]:checked')?.value || 'ALL';
+      const careerVal = document.getElementById('careerSelect').value;
+      const yearVal = document.getElementById('yearSelect').value;
+      const sortVal = document.getElementById('sortSelect').value;
+
+      // Filter
+      let filtered = catalog.filter(doc => {
+        const matchesQuery = !query || 
+          doc.title.toLowerCase().includes(query) ||
+          doc.author.toLowerCase().includes(query) ||
+          doc.abstract.toLowerCase().includes(query) ||
+          (doc.career && doc.career.toLowerCase().includes(query)) ||
+          (doc.advisor && doc.advisor.toLowerCase().includes(query)) ||
+          (doc.doi && doc.doi.toLowerCase().includes(query)) ||
+          doc.keywords.some(k => k.toLowerCase().includes(query));
+
+        const matchesType = (typeRadio === 'ALL') || (doc.type === typeRadio);
+        const matchesCareer = (careerVal === 'ALL') || (doc.career === careerVal);
+
+        let matchesYear = true;
+        if (yearVal === '2020-2021') {
+          matchesYear = doc.year >= 2020 && doc.year <= 2021;
+        } else if (yearVal !== 'ALL') {
+          matchesYear = doc.year.toString() === yearVal;
+        }
+
+        return matchesQuery && matchesType && matchesCareer && matchesYear;
+      });
+
+      // Sort
+      if (sortVal === 'recent') {
+        filtered.sort((a, b) => b.year - a.year || b.id.localeCompare(a.id));
+      } else if (sortVal === 'views') {
+        filtered.sort((a, b) => b.views - a.views);
+      } else if (sortVal === 'downloads') {
+        filtered.sort((a, b) => b.downloads - a.downloads);
+      } else if (sortVal === 'title') {
+        filtered.sort((a, b) => a.title.localeCompare(b.title));
+      }
+
+      // Update counters
+      document.getElementById('resultsCount').innerText = filtered.length;
+      
+      const summaryText = [];
+      if (query) summaryText.push(`búsqueda "${query}"`);
+      if (typeRadio !== 'ALL') summaryText.push(typeRadio);
+      if (careerVal !== 'ALL') summaryText.push(careerVal);
+      if (yearVal !== 'ALL') summaryText.push(`Año: ${yearVal}`);
+      document.getElementById('activeFilterSummary').innerText = summaryText.length > 0 
+        ? `Filtros activos: ${summaryText.join(' • ')}` 
+        : 'Mostrando catálogo completo de publicaciones';
+
+      const grid = document.getElementById('documentsGrid');
+      const emptyState = document.getElementById('noResultsState');
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      grid.innerHTML = filtered.map(doc => {
+        // Tag styles based on type with red accents
+        let badgeColor = 'bg-red-50 text-red-700 border-red-200';
+        let typeIcon = 'graduation-cap';
+        if (doc.type === 'Libro Digital') {
+          badgeColor = 'bg-rose-50 text-rose-700 border-rose-200';
+          typeIcon = 'book';
+        } else if (doc.type === 'Proyecto Integrador') {
+          badgeColor = 'bg-slate-100 text-slate-800 border-slate-300';
+          typeIcon = 'wrench';
+        } else if (doc.type === 'Guía Académica') {
+          badgeColor = 'bg-red-100 text-red-800 border-red-300';
+          typeIcon = 'file-text';
+        }
+
+        const keywordsHtml = doc.keywords.map(kw => 
+          `<span class="inline-block bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded font-medium hover:bg-red-50 hover:text-red-700 cursor-pointer transition" onclick="searchByKeyword('${kw}')">#${kw}</span>`
+        ).join(' ');
+
+        return `
+          <article class="bg-white rounded-2xl p-5 border border-slate-200 hover:border-red-300 hover:shadow-md transition-all duration-200 flex flex-col md:flex-row gap-5 items-start">
+            <!-- Icon badge in red tone -->
+            <div class="hidden sm:flex flex-col items-center justify-center w-16 h-20 rounded-xl bg-red-50/50 border border-red-200 text-red-600 flex-shrink-0 shadow-inner group">
+              <i data-lucide="${typeIcon}" class="w-7 h-7 mb-1"></i>
+              <span class="text-[9px] font-bold text-red-800 uppercase tracking-tighter">PDF</span>
+            </div>
+
+            <!-- Content Area -->
+            <div class="flex-grow space-y-2.5 w-full">
+              <!-- Header Badges -->
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${badgeColor}">
+                  <i data-lucide="${typeIcon}" class="w-3 h-3"></i> ${doc.type}
+                </span>
+                <span class="text-xs text-slate-600 font-medium">
+                  • ${doc.career}
+                </span>
+                <span class="text-xs text-slate-400">
+                  • ${doc.year}
+                </span>
+                ${doc.doi ? `<span class="text-[10px] font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded ml-auto">${doc.doi}</span>` : ''}
+              </div>
+
+              <!-- Title -->
+              <h3 class="text-sm sm:text-base font-bold text-slate-900 hover:text-red-600 transition cursor-pointer leading-snug" onclick="openPdfViewer('${doc.id}')">
+                ${doc.title}
+              </h3>
+
+              <!-- Authors & Advisors -->
+              <div class="text-xs text-slate-600 flex flex-wrap items-center gap-x-4 gap-y-1">
+                <span><strong>Autor:</strong> ${doc.author}</span>
+                ${doc.advisor ? `<span class="text-slate-500"><strong>Tutor/Docente:</strong> ${doc.advisor}</span>` : ''}
+                <span class="text-slate-400"><strong>Págs:</strong> ${doc.pages || 'N/A'}</span>
+              </div>
+
+              <!-- Abstract -->
+              <p class="text-xs text-slate-600 leading-relaxed line-clamp-2">
+                ${doc.abstract}
+              </p>
+
+              <!-- Keywords -->
+              <div class="flex flex-wrap gap-1.5 pt-1">
+                ${keywordsHtml}
+              </div>
+
+              <!-- Footer Actions -->
+              <div class="flex flex-wrap items-center justify-between pt-3 border-t border-slate-100 text-xs gap-3">
+                <div class="flex items-center space-x-3 text-slate-500 text-[11px]">
+                  <span class="flex items-center gap-1"><i data-lucide="eye" class="w-3.5 h-3.5 text-slate-400"></i> ${doc.views} lecturas</span>
+                  <span class="flex items-center gap-1"><i data-lucide="download" class="w-3.5 h-3.5 text-slate-400"></i> ${doc.downloads} descargas</span>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                  <button onclick="openCitationModal('${doc.id}')" class="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium flex items-center gap-1.5 transition">
+                    <i data-lucide="quote" class="w-3.5 h-3.5 text-red-600"></i> Citar
+                  </button>
+                  <button onclick="openPdfViewer('${doc.id}')" class="px-3.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-semibold flex items-center gap-1.5 shadow-sm transition">
+                    <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Leer Online
+                  </button>
+                  <a href="${doc.pdfUrl}" download="${doc.title.substring(0, 30)}.pdf" onclick="incrementDownload('${doc.id}')" class="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 transition" title="Descargar archivo PDF">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    // Search and Filter Handlers
+    function handleSearch() {
+      const val = document.getElementById('searchInput').value;
+      const clearBtn = document.getElementById('clearSearchBtn');
+      if (val.length > 0) {
+        clearBtn.classList.remove('hidden');
+      } else {
+        clearBtn.classList.add('hidden');
+      }
+      renderCatalog();
+    }
+
+    function clearSearch() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('clearSearchBtn').classList.add('hidden');
+      renderCatalog();
+    }
+
+    function searchByKeyword(keyword) {
+      document.getElementById('searchInput').value = keyword;
+      handleSearch();
+      window.scrollTo({ top: 320, behavior: 'smooth' });
+    }
+
+    function handleFiltersChange() {
+      renderCatalog();
+    }
+
+    function resetFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('clearSearchBtn').classList.add('hidden');
+      document.querySelector('input[name="docType"][value="ALL"]').checked = true;
+      document.getElementById('careerSelect').value = 'ALL';
+      document.getElementById('yearSelect').value = 'ALL';
+      document.getElementById('sortSelect').value = 'recent';
+      renderCatalog();
+    }
+
+    function resetFiltersAndHome() {
+      resetFilters();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function setQuickCareer(careerName) {
+      document.getElementById('careerSelect').value = careerName;
+      renderCatalog();
+      window.scrollTo({ top: 380, behavior: 'smooth' });
+    }
+
+    // PDF Viewer Modal Logic
+    function openPdfViewer(docId) {
+      const doc = catalog.find(d => d.id === docId);
+      if (!doc) return;
+
+      doc.views = (doc.views || 0) + 1;
+      saveCatalog();
+      renderCatalog();
+      updateMetrics();
+
+      document.getElementById('viewerTitle').innerText = doc.title;
+      document.getElementById('viewerSubtitle').innerText = `${doc.author} • ${doc.career} • ${doc.year}`;
+      
+      const iframe = document.getElementById('pdfIframe');
+      iframe.src = doc.pdfUrl;
+
+      const downloadBtn = document.getElementById('viewerDownloadBtn');
+      downloadBtn.href = doc.pdfUrl;
+      downloadBtn.setAttribute('download', `${doc.title.substring(0, 35)}.pdf`);
+      downloadBtn.onclick = () => incrementDownload(doc.id);
+
+      document.getElementById('pdfViewerModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      lucide.createIcons();
+    }
+
+    function closePdfViewer() {
+      document.getElementById('pdfViewerModal').classList.add('hidden');
+      document.getElementById('pdfIframe').src = '';
+      document.body.style.overflow = 'auto';
+    }
+
+    function incrementDownload(docId) {
+      const doc = catalog.find(d => d.id === docId);
+      if (doc) {
+        doc.downloads = (doc.downloads || 0) + 1;
+        saveCatalog();
+        renderCatalog();
+        updateMetrics();
+      }
+    }
+
+    // Citation Generation
+    function openCitationModal(docId) {
+      const doc = catalog.find(d => d.id === docId);
+      if (!doc) return;
+      currentDocumentForCitation = doc;
+      switchCiteTab('apa');
+      document.getElementById('citationModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      lucide.createIcons();
+    }
+
+    function closeCitationModal() {
+      document.getElementById('citationModal').classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    }
+
+    function switchCiteTab(style) {
+      const doc = currentDocumentForCitation;
+      if (!doc) return;
+
+      ['apa', 'ieee', 'harvard', 'bibtex'].forEach(s => {
+        const tab = document.getElementById(`tab-${s}`);
+        if (s === style) {
+          tab.className = "py-2 px-3 border-b-2 border-red-600 text-red-600";
+        } else {
+          tab.className = "py-2 px-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700";
+        }
+      });
+
+      const box = document.getElementById('citationBox');
+      const instName = "Instituto Superior Tecnológico Vicente León";
+
+      if (style === 'apa') {
+        box.innerText = `${doc.author} (${doc.year}). ${doc.title} [${doc.type}, ${instName}]. Repositorio Digital ISTVL. ${doc.doi ? 'https://doi.org/' + doc.doi : 'https://istvicenteleon.edu.ec'}`;
+      } else if (style === 'ieee') {
+        box.innerText = `[1] ${doc.author}, "${doc.title}," ${doc.type}, ${doc.career}, ${instName}, Latacunga, Ecuador, ${doc.year}.`;
+      } else if (style === 'harvard') {
+        box.innerText = `${doc.author}, ${doc.year}. ${doc.title}. ${doc.type}, Latacunga: ${instName}. Disponible en: <https://istvicenteleon.edu.ec> [Acceso 2026].`;
+      } else if (style === 'bibtex') {
+        const citeKey = doc.author.split(' ')[0].toLowerCase() + doc.year;
+        box.innerText = `@misc{${citeKey},\n  author    = {${doc.author}},\n  title     = {${doc.title}},\n  institution = {${instName}},\n  year      = {${doc.year}},\n  type      = {${doc.type}},\n  address   = {Latacunga, Cotopaxi, Ecuador}\n}`;
+      }
+    }
+
+    function copyCitationText() {
+      const text = document.getElementById('citationBox').innerText;
+      
+      const tempTextArea = document.createElement("textarea");
+      tempTextArea.value = text;
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(tempTextArea);
+
+      const notice = document.getElementById('copyConfirmNotice');
+      notice.style.opacity = '1';
+      setTimeout(() => {
+        notice.style.opacity = '0';
+      }, 2500);
+    }
+
+    // Upload & Deposit Form
+    function openUploadModal() {
+      document.getElementById('uploadModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      lucide.createIcons();
+    }
+
+    function closeUploadModal() {
+      document.getElementById('uploadModal').classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    }
+
+    function handleFileSelected(input) {
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+        document.getElementById('fileUploadPrompt').innerText = `Archivo cargado: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
+        selectedUploadedFileBlob = URL.createObjectURL(file);
+      }
+    }
+
+    function handleUploadSubmit(e) {
+      e.preventDefault();
+
+      const title = document.getElementById('newTitle').value.trim();
+      const author = document.getElementById('newAuthor').value.trim();
+      const career = document.getElementById('newCareer').value;
+      const type = document.getElementById('newDocType').value;
+      const year = parseInt(document.getElementById('newYear').value) || 2026;
+      const pages = parseInt(document.getElementById('newPages').value) || 50;
+      const advisor = document.getElementById('newAdvisor').value.trim();
+      const doi = document.getElementById('newDoi').value.trim() || `ISTVL-${year}-${career.substring(0,3).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`;
+      const keywordsRaw = document.getElementById('newKeywords').value;
+      const keywords = keywordsRaw.split(',').map(k => k.trim()).filter(k => k.length > 0);
+      const abstract = document.getElementById('newAbstract').value.trim();
+
+      const newDocument = {
+        id: doi,
+        title,
+        author,
+        advisor: advisor || "Comisión Académica ISTVL",
+        career,
+        type,
+        year,
+        pages,
+        doi,
+        keywords: keywords.length ? keywords : ["Educación", "ISTVL"],
+        abstract,
+        views: 1,
+        downloads: 0,
+        pdfUrl: selectedUploadedFileBlob || "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+      };
+
+      catalog.unshift(newDocument);
+      saveCatalog();
+      renderCatalog();
+      updateMetrics();
+
+      closeUploadModal();
+      document.getElementById('uploadForm').reset();
+      selectedUploadedFileBlob = null;
+      document.getElementById('fileUploadPrompt').innerText = "Seleccione o arrastre el archivo PDF";
+
+      window.scrollTo({ top: 380, behavior: 'smooth' });
+    }
+
+    // Stats & Metrics Calculation
+    function updateMetrics() {
+      const totalDocs = catalog.length;
+      const thesesCount = catalog.filter(d => d.type === 'Tesis de Grado').length;
+      const totalViews = catalog.reduce((acc, curr) => acc + (curr.views || 0), 0);
+      const totalDownloads = catalog.reduce((acc, curr) => acc + (curr.downloads || 0), 0);
+
+      document.getElementById('statTotalDocs').innerText = totalDocs;
+      document.getElementById('statTotalTheses').innerText = thesesCount;
+      document.getElementById('statTotalViews').innerText = totalViews;
+      document.getElementById('statTotalDownloads').innerText = totalDownloads;
+
+      // Career distribution
+      const countsByCareer = {};
+      catalog.forEach(d => {
+        countsByCareer[d.career] = (countsByCareer[d.career] || 0) + 1;
+      });
+
+      const barsContainer = document.getElementById('statsCareerBars');
+      barsContainer.innerHTML = Object.keys(countsByCareer).map(career => {
+        const count = countsByCareer[career];
+        const pct = Math.round((count / totalDocs) * 100);
+        return `
+          <div>
+            <div class="flex justify-between text-[11px] mb-1 font-medium text-slate-700">
+              <span class="truncate max-w-[280px]">${career}</span>
+              <span class="text-slate-500">${count} (${pct}%)</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+              <div class="bg-red-600 h-2 rounded-full" style="width: ${pct}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleStatsModal() {
+      const modal = document.getElementById('statsModal');
+      modal.classList.toggle('hidden');
+      if (!modal.classList.contains('hidden')) {
+        updateMetrics();
+        lucide.createIcons();
+      }
+    }
+
+    // Vercel deployment modal guide
+    function openVercelGuideModal() {
+      document.getElementById('vercelModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      lucide.createIcons();
+    }
+
+    function closeVercelGuideModal() {
+      document.getElementById('vercelModal').classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    }
+
+    // Backup & Restore Database
+    function exportDataJson() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(catalog, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `repositorio_istvl_backup_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importDataJson(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (Array.isArray(imported)) {
+            catalog = imported;
+            saveCatalog();
+            renderCatalog();
+            updateMetrics();
+          }
+        } catch (err) {
+          console.error("Invalid JSON file", err);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // Initialize on window load
+    window.onload = function() {
+      initData();
+    };
+  </script>
+</body>
+</html>
